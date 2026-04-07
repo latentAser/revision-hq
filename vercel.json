@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/revision_hq_v1.4.html" }
+  ]
+}
