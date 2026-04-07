@@ -218,7 +218,17 @@ select option{background:var(--s2)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--s3);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:13px;z-index:400;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow-lg);pointer-events:none}
 .toast.on{transform:translateX(-50%) translateY(0)}
 
-/* ── LOADER ── */
+/* ── LOCK SCREEN ── */
+.lock{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+.lock-box{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:340px;padding:20px}
+.lock-icon{font-size:40px;margin-bottom:4px}
+.lock-title{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;text-align:center}
+.lock-sub{font-size:13px;color:var(--text2);text-align:center;margin-top:-10px}
+.lock-input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;padding:12px 16px;outline:none;text-align:center;letter-spacing:.1em;transition:border-color .15s}
+.lock-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.lock-input.err{border-color:var(--chem);box-shadow:0 0 0 3px var(--chem-dim);animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lock-err{font-size:12px;color:var(--chem);height:16px;text-align:center}
 .loader{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s}
 .loader.gone{opacity:0;pointer-events:none}
 .spin{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
@@ -261,6 +271,18 @@ select option{background:var(--s2)}
 <div class="ambient amb1"></div>
 <div class="ambient amb2"></div>
 
+<!-- ── LOCK SCREEN ── -->
+<div class="lock" id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">Revision HQ</div>
+    <div class="lock-sub">Enter passphrase to continue</div>
+    <input class="lock-input" id="lockInput" type="password" placeholder="············" onkeydown="if(event.key==='Enter')checkPass()">
+    <button class="btn btn-p" style="width:100%" onclick="checkPass()">Unlock</button>
+    <div class="lock-err" id="lockErr"></div>
+  </div>
+</div>
+
 <!-- ── LOADER ── -->
 <div class="loader" id="loader">
   <div style="font-size:32px">📚</div>
@@ -274,11 +296,10 @@ select option{background:var(--s2)}
     <div class="hdr-logo">📚</div>
     <div>
       <div class="hdr-title">Revision HQ</div>
-      <div class="hdr-sub">YEAR 12 · IMPERIAL COLLEGE MEDICINE</div>
+      <div class="hdr-sub">ASER ELKHOLY · YEAR 12</div>
     </div>
   </div>
   <div class="hdr-right">
-    <div class="badge" title="Database status"><div class="db-dot" id="dbDot"></div><span id="dbStatus" style="font-size:11px;color:var(--text2)">Connecting…</span></div>
     <div class="badge badge-streak">🔥 <span class="sn" id="streakNum">0</span> <span style="color:var(--text2);font-size:12px">day streak</span></div>
     <div class="badge badge-date" id="dateLbl"></div>
   </div>
@@ -517,7 +538,7 @@ select option{background:var(--s2)}
 // ══════════════════════════════════════════
 // SUPABASE CONFIG — paste your Project URL below
 // ══════════════════════════════════════════
-const SUPA_URL = 'https://mgpqdtzcrclmtxmkqzyw.supabase.co';
+const SUPA_URL = 'PASTE_YOUR_PROJECT_URL_HERE';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHFkdHpjcmNsbXR4bWtxenl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjExNDEsImV4cCI6MjA5MTEzNzE0MX0.BeV0gZ7vQXW8G-wY8T9Trkf3LsFixkJO5BWBtRgPloA';
 
 let sb = null;
@@ -538,8 +559,6 @@ function initSupabase() {
 
 function setDBStatus(online, label) {
   dbOnline = online;
-  document.getElementById('dbDot').className = 'db-dot' + (online ? '' : ' offline');
-  document.getElementById('dbStatus').textContent = label;
 }
 
 // ══════════════════════════════════════════
@@ -1198,6 +1217,27 @@ function renderStats() {
 function openModal(id)  { document.getElementById(id).classList.add('on'); }
 function closeModal(id) { document.getElementById(id).classList.remove('on'); }
 document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
+
+// ══════════════════════════════════════════
+// LOCK SCREEN
+// ══════════════════════════════════════════
+const PASS = 'medic25';
+function checkPass() {
+  const val = document.getElementById('lockInput').value;
+  if (val === PASS) {
+    sessionStorage.setItem('rh_unlocked','1');
+    document.getElementById('lockScreen').style.display='none';
+  } else {
+    const inp = document.getElementById('lockInput');
+    inp.classList.add('err');
+    document.getElementById('lockErr').textContent='Incorrect passphrase';
+    setTimeout(()=>{inp.classList.remove('err');document.getElementById('lockErr').textContent='';},1200);
+    inp.value='';
+  }
+}
+if (sessionStorage.getItem('rh_unlocked')==='1') {
+  document.getElementById('lockScreen').style.display='none';
+}
 
 // ══════════════════════════════════════════
 // INIT
