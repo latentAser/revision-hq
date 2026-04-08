@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Revision HQ">
+<meta name="theme-color" content="#070b16">
+<link rel="manifest" href="/manifest.json">
+<title>Revision HQ</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23101724'/><text y='130' x='22' font-size='110'>📚</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111827'/><text y='22' x='5' font-size='20'>📚</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#070b16;--bg2:#0a0f1c;--surface:#101724;--s2:#141e2e;--s3:#1a263a;
+  --border:#1c2a40;--border2:#243450;
+  --text:#e2eaf8;--text2:#6e88b0;--text3:#2e4260;
+  --accent:#4f8ef7;--accent-dim:rgba(79,142,247,0.1);--accent-glow:rgba(79,142,247,0.25);
+  --bio:#2de08a;--bio-dim:rgba(45,224,138,0.08);--bio-b:rgba(45,224,138,0.2);--bio-glow:rgba(45,224,138,0.15);
+  --chem:#ff5f6d;--chem-dim:rgba(255,95,109,0.08);--chem-b:rgba(255,95,109,0.2);--chem-glow:rgba(255,95,109,0.15);
+  --phys:#5aabff;--phys-dim:rgba(90,171,255,0.08);--phys-b:rgba(90,171,255,0.2);--phys-glow:rgba(90,171,255,0.15);
+  --maths:#ffb020;--maths-dim:rgba(255,176,32,0.08);--maths-b:rgba(255,176,32,0.2);--maths-glow:rgba(255,176,32,0.15);
+  --r:16px;--rs:10px;--rx:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.6),0 4px 24px rgba(0,0,0,.4);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.7);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── AMBIENT ── */
+.ambient{position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(90px)}
+.amb1{width:560px;height:560px;top:-120px;right:-120px;animation:orbPulse1 18s ease-in-out infinite}
+.amb2{width:440px;height:440px;bottom:5%;left:-100px;animation:orbPulse2 22s ease-in-out infinite}
+.amb3{width:300px;height:300px;bottom:40%;right:10%;animation:orbPulse3 28s ease-in-out infinite}
+@keyframes orbPulse1{0%,100%{background:radial-gradient(circle,rgba(79,142,247,.13),transparent 70%)}25%{background:radial-gradient(circle,rgba(45,224,138,.09),transparent 70%)}50%{background:radial-gradient(circle,rgba(255,95,109,.08),transparent 70%)}75%{background:radial-gradient(circle,rgba(255,176,32,.07),transparent 70%)}}
+@keyframes orbPulse2{0%,100%{background:radial-gradient(circle,rgba(45,224,138,.08),transparent 70%)}33%{background:radial-gradient(circle,rgba(90,171,255,.1),transparent 70%)}66%{background:radial-gradient(circle,rgba(79,142,247,.09),transparent 70%)}}
+@keyframes orbPulse3{0%,100%{background:radial-gradient(circle,rgba(255,176,32,.05),transparent 70%)}50%{background:radial-gradient(circle,rgba(255,95,109,.06),transparent 70%)}}
+.dots-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.dot-p{position:absolute;border-radius:50%;animation:floatDot linear infinite}
+@keyframes floatDot{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:1}90%{opacity:.5}100%{transform:translateY(-100vh) scale(0.5);opacity:0}}
+
+/* ── ANIMATIONS ── */
+@keyframes streakPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px rgba(255,95,109,.3)}}
+.streak-active{animation:streakPulse 2.5s ease-in-out infinite}
+@keyframes tickPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
+.tchk.ck{animation:tickPop .25s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes countFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.count-anim{animation:countFade .4s ease forwards}
+@keyframes motivFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tickSlide{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+.pb-tick{animation:tickSlide .3s ease forwards;color:var(--bio);font-size:12px;margin-left:4px}
+@keyframes badgePop{0%{transform:scale(0.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.badge-pop{animation:badgePop .3s ease forwards}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── DB DOT ── */
+.db-dot{width:7px;height:7px;border-radius:50%;background:var(--bio);box-shadow:0 0 6px var(--bio);flex-shrink:0;transition:all .3s;animation:dotPulse 2.5s ease-in-out infinite}
+.db-dot.offline{background:var(--chem);box-shadow:0 0 6px var(--chem);animation:dotPulseRed 2.5s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--bio),0 0 0 0 rgba(45,224,138,.5)}50%{opacity:.7;box-shadow:0 0 8px var(--bio),0 0 0 4px rgba(45,224,138,0)}}
+@keyframes dotPulseRed{0%,100%{opacity:1;box-shadow:0 0 4px var(--chem),0 0 0 0 rgba(255,95,109,.5)}50%{opacity:.7;box-shadow:0 0 8px var(--chem),0 0 0 4px rgba(255,95,109,0)}}
+
+/* ── HEADER ── */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(7,11,22,.88);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);padding:13px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hdr-brand{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1a263a,#0f1a2a);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hdr-title{font-family:'DM Serif Display',serif;font-size:19px;font-weight:400}
+.hdr-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.12em;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:100px;background:var(--s2);border:1px solid var(--border);font-size:12px;white-space:nowrap}
+.badge-streak .sn{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--chem)}
+.badge-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)}
+@media(max-width:640px){.badge-date{display:none}}
+
+/* ── POMO BAR ── */
+.pomo-bar{display:none;align-items:center;gap:10px;padding:8px 28px;font-size:13px;background:rgba(79,142,247,.07);border-bottom:1px solid rgba(79,142,247,.15);color:var(--accent)}
+.pomo-bar.on{display:flex}
+.pomo-bar .pt{font-family:'DM Mono',monospace;font-weight:500}
+
+/* ── TABS ── */
+.tab-nav{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 16px;overflow-x:auto;position:relative;z-index:10}
+.tab-nav::-webkit-scrollbar{height:0}
+.tnb{display:flex;align-items:center;gap:6px;padding:11px 14px;font-size:12px;font-weight:500;color:var(--text2);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.tnb:hover{color:var(--text)}.tnb.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── PANELS ── */
+.panel{display:none;padding:24px;max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.panel.on{display:block}
+@media(max-width:640px){.panel{padding:14px}.hdr{padding:12px 16px}.pomo-bar{padding:8px 16px}}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:640px){.g4{grid-template-columns:1fr 1fr}}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--text3);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── HERO STATS ── */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:640px){.hero-grid{grid-template-columns:1fr 1fr}}
+.hero-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
+.hero-stat:hover{border-color:var(--border2)}
+.hero-stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;border-radius:0 0 var(--r) var(--r)}
+.hs-bio::after{background:var(--bio)}.hs-chem::after{background:var(--chem)}.hs-phys::after{background:var(--phys)}.hs-maths::after{background:var(--maths)}.hs-accent::after{background:var(--accent)}
+.hero-stat .hl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-weight:500}
+.hero-stat .hv{font-family:'DM Serif Display',serif;font-size:38px;line-height:1;margin-bottom:3px}
+.hero-stat .hs{font-size:11px;color:var(--text2)}
+.hero-stat .hicon{position:absolute;top:14px;right:14px;font-size:20px;opacity:.25}
+
+/* ── MOTIV ── */
+.motiv{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.motiv-quote{font-family:'DM Serif Display',serif;font-size:14px;font-style:italic;color:var(--text);line-height:1.5;flex:1}
+.motiv-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── PROGRESS BARS ── */
+.pb-block{margin-bottom:13px}.pb-block:last-child{margin-bottom:0}
+.pb-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.pb-name{font-size:13px;font-weight:500}
+.pb-nums{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)}
+.pb-track{height:7px;background:var(--s3);border-radius:100px;overflow:hidden}
+.pb-fill{height:100%;border-radius:100px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.pb-fill.over{animation:pulse 1.5s ease-in-out infinite}
+
+/* ── BADGES ── */
+.badges-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.badge-item{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);font-size:12px;transition:all .2s}
+.badge-item.earned{background:var(--s3);border-color:var(--border2)}
+.badge-item.locked{opacity:.35;filter:grayscale(.7)}
+.badge-icon{font-size:18px;line-height:1}
+.badge-name{font-weight:500;font-size:12px}
+.badge-desc{font-size:10px;color:var(--text3)}
+
+/* ── WEAK TOPICS ── */
+.weak-topic{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:6px;font-size:12px;transition:border-color .15s}
+.weak-topic:hover{border-color:var(--border2)}
+.weak-conf{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* ── POMODORO ── */
+.pomo-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:4px 0}
+.pomo-ring{position:relative;width:190px;height:190px}
+.pomo-ring svg{transform:rotate(-90deg)}
+.pomo-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pomo-time{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;letter-spacing:-.03em}
+.pomo-lbl{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-top:3px}
+.mode-toggle{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:100px;padding:3px;gap:2px}
+.mode-btn{padding:5px 13px;border-radius:100px;border:none;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);background:transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+.mode-btn.on{background:var(--s3);color:var(--text)}
+.subj-btns{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.sbtn{padding:6px 13px;border-radius:100px;border:1px solid var(--border);background:var(--s2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.sbtn.s-bio{background:var(--bio-dim);border-color:var(--bio-b);color:var(--bio)}
+.sbtn.s-chem{background:var(--chem-dim);border-color:var(--chem-b);color:var(--chem)}
+.sbtn.s-phys{background:var(--phys-dim);border-color:var(--phys-b);color:var(--phys)}
+.sbtn.s-maths{background:var(--maths-dim);border-color:var(--maths-b);color:var(--maths)}
+.pomo-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:var(--rs);border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:#6aa0ff;box-shadow:0 0 20px var(--accent-glow)}
+.btn-g{background:var(--s2);color:var(--text2);border:1px solid var(--border)}.btn-g:hover{color:var(--text);border-color:var(--border2)}
+.btn-sm{padding:6px 13px;font-size:12px}.btn-xs{padding:4px 10px;font-size:11px;border-radius:var(--rx)}
+.btn-icon{padding:6px;width:30px;height:30px;border-radius:var(--rx)}
+
+/* ── FORM ── */
+.fg{margin-bottom:13px}.fg:last-child{margin-bottom:0}
+label{display:block;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+input[type=text],input[type=number],input[type=date],textarea,select{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+textarea{resize:vertical;min-height:64px;line-height:1.5}
+select option{background:var(--s2)}
+.ig{display:flex;gap:10px}.ig .fg{flex:1;margin-bottom:0}
+.stars{display:flex;gap:3px}
+.star{font-size:22px;cursor:pointer;transition:transform .1s;color:var(--s3);line-height:1}
+.star.on{color:var(--maths)}.star:hover{transform:scale(1.2)}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:500}
+.p-bio{background:var(--bio-dim);color:var(--bio)}.p-chem{background:var(--chem-dim);color:var(--chem)}
+.p-phys{background:var(--phys-dim);color:var(--phys)}.p-maths{background:var(--maths-dim);color:var(--maths)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+.tbl td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.01)}
+
+/* ── CHECKLIST ── */
+.subj-tabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.stab{padding:6px 15px;border-radius:100px;border:1px solid var(--border);background:var(--s2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.stab.s-bio{background:var(--bio-dim);border-color:var(--bio-b);color:var(--bio)}
+.stab.s-chem{background:var(--chem-dim);border-color:var(--chem-b);color:var(--chem)}
+.stab.s-phys{background:var(--phys-dim);border-color:var(--phys-b);color:var(--phys)}
+.stab.s-maths{background:var(--maths-dim);border-color:var(--maths-b);color:var(--maths)}
+.topic-item{display:grid;grid-template-columns:22px 1fr 54px 100px 180px 30px;gap:10px;align-items:center;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:6px;transition:all .2s}
+.topic-item:hover{border-color:var(--border2)}
+.topic-item.done-item{opacity:.4}.topic-item.done-item .tn{text-decoration:line-through}
+@media(max-width:700px){.topic-item{grid-template-columns:22px 1fr auto auto 30px}.topic-note-cell{display:none}}
+.tchk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.tchk.ck{background:var(--bio);border-color:var(--bio);box-shadow:0 0 8px var(--bio-glow)}
+.tchk.ck::after{content:'✓';color:#070b16;font-size:11px;font-weight:700}
+.tn{font-size:13px}
+.tconf select{background:var(--s3);border:1px solid var(--border);color:var(--text2);padding:4px 7px;font-size:11px;width:100%;border-radius:var(--rx);font-family:'DM Sans',sans-serif;outline:none}
+.tnote input{background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:3px 0;font-size:11px;color:var(--text2);width:100%;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.tnote input:focus{border-bottom-color:var(--accent)}
+.topic-expand{cursor:pointer;font-size:10px;color:var(--text3);padding:3px 8px;border-radius:var(--rx);background:var(--s3);border:none;font-family:'DM Mono',monospace;transition:all .15s;flex-shrink:0;letter-spacing:.04em}
+.topic-expand:hover{color:var(--text2);background:var(--border2)}
+
+/* ── SUBTOPICS ── */
+.subtopic-list{margin-top:8px;margin-left:32px;display:flex;flex-direction:column;gap:5px;padding-bottom:4px}
+.subtopic-item{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bg2);border:1px solid var(--border);border-left:2px solid var(--border2);border-radius:var(--rx);font-size:12px;color:var(--text2);transition:border-color .15s}
+.subtopic-item:hover{border-left-color:var(--accent)}
+.subtopic-item.done-sub{opacity:.4;text-decoration:line-through}
+.stchk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.stchk.ck{background:var(--bio);border-color:var(--bio)}
+.stchk.ck::after{content:'✓';color:#070b16;font-size:8px;font-weight:700}
+.add-subtopic{display:flex;gap:7px;margin-top:6px;margin-left:32px;margin-bottom:2px}
+.add-subtopic input{flex:1;font-size:12px;padding:6px 10px;border-radius:var(--rx)}
+.add-subtopic button{padding:6px 12px;font-size:11px;border-radius:var(--rx);white-space:nowrap}
+
+/* ── EXAMS ── */
+.exam-card{display:grid;grid-template-columns:80px 1fr auto auto;gap:14px;align-items:center;padding:13px 16px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;transition:all .2s}
+.exam-card:hover{border-color:var(--border2)}
+.ex-days-n{font-family:'DM Serif Display',serif;font-size:36px;line-height:1;text-align:center}
+.ex-days-l{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;text-align:center}
+.ex-name{font-size:14px;font-weight:600}.ex-meta{font-size:11px;color:var(--text2);margin-top:3px;font-family:'DM Mono',monospace}
+.ex-hrs{font-size:11px;color:var(--text3);margin-top:3px}
+.type-tag{padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.tt-mock{background:var(--phys-dim);color:var(--phys)}.tt-real{background:var(--chem-dim);color:var(--chem)}.tt-int{background:var(--s3);color:var(--text2)}
+
+/* ── SPIDER ── */
+.spider-wrap{display:flex;justify-content:center;align-items:center;padding:4px 0}
+
+/* ── EXAM HERO ── */
+.exam-hero{text-align:center;padding:10px 0}
+.exam-hero-days{font-family:'DM Serif Display',serif;font-size:72px;line-height:1}
+.exam-hero-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;margin-bottom:12px}
+.exam-hero-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.exam-hero-meta{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:12px}
+.exam-hero-chip{display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-size:12px;color:var(--text2)}
+
+/* ── HEATMAP ── */
+.hcell{width:13px;height:13px;border-radius:3px;background:var(--s3)}
+.hcell[data-l="1"]{background:rgba(45,224,138,.18)}.hcell[data-l="2"]{background:rgba(45,224,138,.42)}
+.hcell[data-l="3"]{background:rgba(45,224,138,.68)}.hcell[data-l="4"]{background:rgba(45,224,138,1)}
+.hmap-day{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);width:13px;text-align:center}
+.hmap-wlbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);width:25px}
+
+/* ── SECTION HEAD ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px}
+.sh:first-child{margin-top:0}
+.sh h2{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400}
+.sh-action{font-size:12px;color:var(--accent);cursor:pointer;font-weight:500}.sh-action:hover{text-decoration:underline}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(4,7,14,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.on{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:26px;width:100%;max-width:460px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:20px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:36px 20px;color:var(--text3)}
+.empty-icon{font-size:28px;margin-bottom:8px}
+.empty p{font-size:13px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--s3);border:1px solid var(--border2);border-radius:100px;padding:9px 20px;font-size:13px;z-index:400;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:var(--shadow-lg);pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* ── LOCK ── */
+.lock{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.lock-box{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:340px;padding:20px}
+.lock-input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;padding:12px 16px;outline:none;text-align:center;letter-spacing:.1em;transition:border-color .15s}
+.lock-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.lock-input.err{border-color:var(--chem);animation:shake .3s ease}
+.lock-err{font-size:12px;color:var(--chem);height:16px;text-align:center}
+
+/* ── LOADER ── */
+.loader{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s}
+.loader.gone{opacity:0;pointer-events:none}
+.spin{width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.loader-txt{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);letter-spacing:.1em}
+
+/* ── KEYBOARD HINT ── */
+.kbd-hint{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)}
+.kbd{background:var(--s3);border:1px solid var(--border2);border-radius:4px;padding:2px 5px;font-size:10px}
+
+/* ── CONFETTI ── */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:900;overflow:hidden}
+.confetti-piece{position:absolute;width:8px;height:8px;top:-10px;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ── PP EXAM TIMER ── */
+.pp-timer-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0}
+.pp-timer-display{font-family:'DM Mono',monospace;font-size:48px;font-weight:500;letter-spacing:-.03em;line-height:1}
+.pp-timer-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)}
+.pp-timer-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.custom-dur-wrap{display:flex;gap:8px;align-items:center;width:100%}
+.custom-dur-wrap input{flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:14px}
+.custom-dur-wrap label{font-size:12px;color:var(--text2);white-space:nowrap;text-transform:none;letter-spacing:0}
+
+/* ── STREAK CALENDAR ── */
+.cal-wrap{user-select:none}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-title{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400}
+.cal-nav{background:var(--s2);border:1px solid var(--border);border-radius:var(--rx);padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
+.cal-nav:hover{color:var(--text);border-color:var(--border2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);text-align:center;padding-bottom:6px;letter-spacing:.06em}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);background:var(--s2);position:relative;transition:border-color .15s;gap:2px;border:1px solid transparent}
+.cal-cell.today{border-color:var(--accent);color:var(--accent);font-weight:600}
+.cal-cell.other-month{opacity:.18}
+.cal-cell.has-session{color:var(--text)}
+.cal-dot-row{display:flex;gap:2px;justify-content:center}
+.cal-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.cal-legend{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)}
+.cal-legend-item{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+
+.score-chip{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;padding:3px 10px;border-radius:100px;display:inline-block}
+.sc-a{background:var(--bio-dim);color:var(--bio)}
+.sc-b{background:var(--phys-dim);color:var(--phys)}
+.sc-c{background:var(--maths-dim);color:var(--maths)}
+.sc-d{background:var(--chem-dim);color:var(--chem)}
+
+/* ── CONF COLORS ── */
+.c1{color:#ff5f6d}.c2{color:var(--maths)}.c3{color:#ffd166}.c4{color:#7dd3a8}.c5{color:var(--bio)}
+
+/* ── DONUT LEGEND ── */
+.legend-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.lswatch{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.ltext{font-size:13px;flex:1}.lpct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)}
+
+/* ── SVG CHART AXES ── */
+.chart-svg{overflow:visible}
+
+/* ── WEEKLY REVIEW ── */
+.review-card{background:linear-gradient(135deg,rgba(79,142,247,.08),rgba(45,224,138,.05));border:1px solid rgba(79,142,247,.2);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.review-title{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.review-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.review-grid{grid-template-columns:1fr 1fr}}
+.review-item{text-align:center;padding:10px;background:var(--s2);border-radius:var(--rs);border:1px solid var(--border)}
+.review-val{font-family:'DM Serif Display',serif;font-size:24px;line-height:1;margin-bottom:2px}
+.review-lbl{font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="ambient amb1"></div>
+<div class="ambient amb2"></div>
+<div class="ambient amb3"></div>
+<div class="dots-bg" id="dotsBg"></div>
+
+<!-- LOCK -->
+<div class="lock" id="lockScreen">
+  <div class="lock-box">
+    <div style="font-size:40px;margin-bottom:4px">🔒</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:400">Revision HQ</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:-10px">Enter passphrase to continue</div>
+    <input class="lock-input" id="lockInput" type="password" placeholder="············" onkeydown="if(event.key==='Enter')checkPass()">
+    <button class="btn btn-p" style="width:100%" onclick="checkPass()">Unlock</button>
+    <div class="lock-err" id="lockErr"></div>
+  </div>
+</div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div style="font-size:32px">📚</div>
+  <div class="spin"></div>
+  <div class="loader-txt">LOADING REVISION HQ</div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">📚</div>
+    <div>
+      <div class="hdr-title">Revision HQ</div>
+      <div class="hdr-sub">ASER ELKHOLY · YEAR 12 · <span style="color:var(--border2)">v1.6</span></div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="badge" title="Database status"><div class="db-dot" id="dbDot"></div><span id="dbStatus" style="font-size:11px;color:var(--text2)">Connecting…</span></div>
+    <div class="badge badge-streak" id="streakBadge">🔥 <span class="sn" id="streakNum">0</span> <span style="color:var(--text2);font-size:12px">day streak</span></div>
+    <div class="badge badge-date" id="dateLbl"></div>
+  </div>
+</header>
+
+<!-- POMO BAR -->
+<div class="pomo-bar" id="pomoBar">
+  ⏱️ &nbsp;Session running — <span class="pt" id="pomoBarTime">00:00</span>&nbsp;<span id="pomoBarSubj" style="color:var(--text2);font-size:11px"></span>
+  <button class="btn btn-xs btn-g" style="margin-left:auto" onclick="switchTab('sess')">View</button>
+</div>
+
+<!-- TABS -->
+<nav class="tab-nav">
+  <button class="tnb on" data-tab="dash">  <span>🏠</span> Dashboard</button>
+  <button class="tnb"    data-tab="sess">  <span>⏱️</span> Sessions</button>
+  <button class="tnb"    data-tab="check"> <span>📋</span> Checklist</button>
+  <button class="tnb"    data-tab="exams"> <span>🎯</span> Exams</button>
+  <button class="tnb"    data-tab="papers"><span>📄</span> Past Papers</button>
+  <button class="tnb"    data-tab="stats"> <span>📊</span> Analytics</button>
+</nav>
+
+<!-- ════ DASHBOARD ════ -->
+<div class="panel on" id="tab-dash">
+  <div class="motiv" id="motivStrip">
+    <div><div class="motiv-quote" id="motivQ"></div><div class="motiv-sub" id="motivA"></div></div>
+    <div style="font-size:26px;opacity:.3">✦</div>
+  </div>
+
+  <div class="hero-grid">
+    <div class="hero-stat hs-accent"><div class="hicon">📖</div><div class="hl">This Week</div><div class="hv" id="d-wkhrs">0h</div><div class="hs">of <span id="d-wktgt">24</span>h target</div></div>
+    <div class="hero-stat hs-chem"><div class="hicon">🔥</div><div class="hl">Streak</div><div class="hv" id="d-streak">0</div><div class="hs">consecutive days</div></div>
+    <div class="hero-stat hs-phys"><div class="hicon">📝</div><div class="hl">Sessions</div><div class="hv" id="d-sess">0</div><div class="hs">this week</div></div>
+    <div class="hero-stat hs-bio"><div class="hicon">✅</div><div class="hl">Topics Done</div><div class="hv" id="d-topics">0</div><div class="hs">ticked off</div></div>
+  </div>
+
+  <!-- Weekly review (shows Fri/Sat/Sun) -->
+  <div id="weeklyReviewWrap"></div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Weekly Progress <span id="wkLabel" style="font-size:9px;color:var(--text3)"></span></div>
+      <div id="wkBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Next Exam</div>
+      <div id="dashExam"></div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Activity — Last 5 Weeks</div>
+      <div id="heatmapWrap" style="overflow-x:auto"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Confidence Radar</div>
+      <div class="spider-wrap" id="spiderWrap"></div>
+    </div>
+  </div>
+
+  <!-- Streak Calendar -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Study Calendar <span style="font-size:9px;color:var(--text3)">dots = subjects studied</span></div>
+    <div class="cal-wrap" id="calWrap"></div>
+  </div>
+
+  <!-- Badges -->
+  <div class="sh"><h2>Milestones</h2></div>
+  <div class="badges-row" id="badgesRow"></div>
+
+  <!-- Weak topics -->
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">⚠️ Priority Topics <span style="font-size:9px">Conf ≤ 2</span></div>
+      <div id="weakTopics"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Sessions</div>
+      <div id="recentSess"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SESSIONS ════ -->
+<div class="panel" id="tab-sess">
+  <div class="g2" style="margin-bottom:20px">
+    <!-- POMO -->
+    <div class="card">
+      <div class="card-title">Pomodoro Timer <span class="kbd-hint"><span class="kbd">Space</span> pause · <span class="kbd">R</span> reset</span></div>
+      <div class="mode-toggle" style="width:fit-content;margin:0 auto 14px">
+        <button class="mode-btn on" data-m="focus" onclick="setMode('focus')">Focus 25m</button>
+        <button class="mode-btn" data-m="short" onclick="setMode('short')">Break 5m</button>
+        <button class="mode-btn" data-m="free" onclick="setMode('free')">Custom ↑</button>
+      </div>
+      <div id="customDurWrap" style="display:none;width:100%;margin-bottom:10px">
+        <div class="custom-dur-wrap">
+          <label>Custom duration (mins):</label>
+          <input type="number" id="customDurInput" min="1" max="300" placeholder="e.g. 45" style="width:80px">
+          <button class="btn btn-g btn-sm" onclick="applyCustomDur()">Set</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;font-family:'DM Mono',monospace">Leave blank = count up freely</div>
+      </div>
+      <div class="pomo-wrap">
+        <div class="pomo-ring">
+          <svg width="190" height="190" viewBox="0 0 190 190">
+            <circle cx="95" cy="95" r="84" fill="none" stroke="var(--s3)" stroke-width="10"/>
+            <circle cx="95" cy="95" r="84" fill="none" stroke="var(--accent)" stroke-width="10"
+              stroke-dasharray="527.8" stroke-dashoffset="0" stroke-linecap="round" id="pomoRing"/>
+          </svg>
+          <div class="pomo-center">
+            <div class="pomo-time" id="pomoTime">25:00</div>
+            <div class="pomo-lbl" id="pomoLbl">FOCUS</div>
+          </div>
+        </div>
+        <div class="subj-btns" id="pomoSBtns">
+          <button class="sbtn" data-s="bio" onclick="setPS('bio')">🟢 Biology</button>
+          <button class="sbtn" data-s="chem" onclick="setPS('chem')">🔴 Chemistry</button>
+          <button class="sbtn" data-s="phys" onclick="setPS('phys')">🔵 Physics</button>
+          <button class="sbtn" data-s="maths" onclick="setPS('maths')">🟠 Maths</button>
+        </div>
+        <div class="fg" style="width:100%;margin:0"><input type="text" id="pomoTopic" placeholder="Topic (e.g. Cell transport)…"></div>
+        <div class="pomo-controls">
+          <button class="btn btn-p" id="pomoBtn" onclick="togglePomo()">▶ Start</button>
+          <button class="btn btn-g" onclick="resetPomo()">↺ Reset</button>
+          <button class="btn btn-g" id="pomoStopBtn" onclick="stopPomo()" style="display:none">⏹ Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG FORM -->
+    <div class="card">
+      <div class="card-title">Log a Session <span class="kbd-hint"><span class="kbd">Ctrl+S</span> save</span></div>
+      <div class="fg">
+        <label>Subject</label>
+        <div class="subj-btns" style="justify-content:flex-start" id="logSBtns">
+          <button class="sbtn" data-s="bio" onclick="setLS('bio')">🟢 Bio</button>
+          <button class="sbtn" data-s="chem" onclick="setLS('chem')">🔴 Chem</button>
+          <button class="sbtn" data-s="phys" onclick="setLS('phys')">🔵 Phys</button>
+          <button class="sbtn" data-s="maths" onclick="setLS('maths')">🟠 Maths</button>
+        </div>
+      </div>
+      <div class="fg"><label>Topic Covered</label><input type="text" id="logTopic" placeholder="e.g. Enzymes, Organic mechanisms…"></div>
+      <div class="fg"><label>Session Goal</label><input type="text" id="logGoal" placeholder="What do you want to achieve?"></div>
+      <div class="ig" style="margin-bottom:13px">
+        <div class="fg"><label>Date</label><input type="date" id="logDate"></div>
+        <div class="fg"><label>Duration (mins)</label><input type="number" id="logDur" min="1" max="600" placeholder="60"></div>
+      </div>
+      <div class="fg">
+        <label>Confidence <span style="font-size:10px;color:var(--text3)">(1=Shaky → 5=Solid)</span></label>
+        <div class="stars" id="logStars">
+          <span class="star" data-v="1" onclick="setConf(1)">★</span>
+          <span class="star" data-v="2" onclick="setConf(2)">★</span>
+          <span class="star" data-v="3" onclick="setConf(3)">★</span>
+          <span class="star" data-v="4" onclick="setConf(4)">★</span>
+          <span class="star" data-v="5" onclick="setConf(5)">★</span>
+        </div>
+      </div>
+      <div class="fg"><label>Notes / Reflection</label><textarea id="logNotes" placeholder="What went well? What to revisit?"></textarea></div>
+      <button class="btn btn-p" style="width:100%" onclick="saveSession()">💾 Save Session</button>
+    </div>
+  </div>
+
+  <div class="sh">
+    <h2>Session History</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="histFilt" onchange="renderHistory()" style="width:auto;padding:5px 10px;font-size:12px;border-radius:var(--rs)">
+        <option value="all">All subjects</option>
+        <option value="bio">Biology</option>
+        <option value="chem">Chemistry</option>
+        <option value="phys">Physics</option>
+        <option value="maths">Maths</option>
+      </select>
+      <button class="btn btn-g btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden"><div id="histWrap"></div></div>
+</div>
+
+<!-- ════ CHECKLIST ════ -->
+<div class="panel" id="tab-check">
+  <div class="subj-tabs" id="checkTabs">
+    <button class="stab s-bio" data-s="bio" onclick="setCLS('bio')">🟢 Biology (AQA)</button>
+    <button class="stab" data-s="chem" onclick="setCLS('chem')">🔴 Chemistry (OCR A)</button>
+    <button class="stab" data-s="phys" onclick="setCLS('phys')">🔵 Physics (OCR A)</button>
+    <button class="stab" data-s="maths" onclick="setCLS('maths')">🟠 Maths (Edexcel)</button>
+  </div>
+  <div class="card" style="margin-bottom:14px"><div id="clSummary" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap"></div></div>
+  <div id="clTopics"></div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button class="btn btn-g btn-sm" onclick="openModal('topicModal')">+ Add topic</button>
+    <button class="btn btn-g btn-sm" onclick="resetSubjectChecklist()">↺ Reset subject</button>
+  </div>
+</div>
+
+<!-- ════ EXAMS ════ -->
+<div class="panel" id="tab-exams">
+  <div class="sh" style="margin-top:0"><h2>Exam Countdown</h2><button class="btn btn-p btn-sm" onclick="openModal('examModal')">+ Add Exam</button></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Weekly Hour Targets</div>
+    <div class="g4">
+      <div class="fg" style="margin:0"><label style="color:var(--bio)">Biology (hrs)</label><input type="number" id="tgt-bio" min="0" max="40" value="8" onchange="saveTgts()"></div>
+      <div class="fg" style="margin:0"><label style="color:var(--chem)">Chemistry (hrs)</label><input type="number" id="tgt-chem" min="0" max="40" value="7" onchange="saveTgts()"></div>
+      <div class="fg" style="margin:0"><label style="color:var(--phys)">Physics (hrs)</label><input type="number" id="tgt-phys" min="0" max="40" value="5" onchange="saveTgts()"></div>
+      <div class="fg" style="margin:0"><label style="color:var(--maths)">Maths (hrs)</label><input type="number" id="tgt-maths" min="0" max="40" value="4" onchange="saveTgts()"></div>
+    </div>
+  </div>
+  <div id="examList"></div>
+</div>
+
+<!-- ════ PAST PAPERS ════ -->
+<div class="panel" id="tab-papers">
+  <div class="sh" style="margin-top:0"><h2>Past Papers</h2><button class="btn btn-p btn-sm" onclick="openModal('paperModal')">+ Log Paper</button></div>
+
+  <!-- EXAM TIMER — uses the shared custom timer -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">⏱️ Exam Timer <span style="font-size:9px;color:var(--text3)">Uses the same timer in Sessions tab</span></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <input type="number" id="ppTimerDur" min="1" max="300" placeholder="Duration (mins)" style="width:160px">
+      <button class="btn btn-p" onclick="startPPTimer()">▶ Start Exam Timer</button>
+      <span style="font-size:12px;color:var(--text3)">Sets the custom timer and opens Sessions tab</span>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Score Progression</div>
+      <div id="paperChart"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Average Scores by Subject</div>
+      <div id="paperAvg"></div>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden"><div id="paperList"></div></div>
+</div>
+
+<!-- ════ ANALYTICS ════ -->
+<div class="panel" id="tab-stats">
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Total Hours by Subject</div>
+      <div id="aHours" style="overflow-x:auto"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avg Confidence by Subject</div>
+      <div id="aConf" style="overflow-x:auto"></div>
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Time Distribution</div>
+      <div id="aDonut" style="display:flex;align-items:center;gap:20px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Spec Coverage</div>
+      <div id="aCoverage" style="overflow-x:auto;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:4px 0"></div>
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-title">Confidence Spider</div>
+      <div class="spider-wrap" id="statsSpider"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sessions per Subject</div>
+      <div id="aSessCount" style="overflow-x:auto"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Weekly Hours — Last 8 Weeks</div>
+    <div id="aTrend" style="overflow-x:auto"></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="examModal">
+  <div class="modal">
+    <div class="modal-title">Add Exam</div>
+    <div class="fg"><label>Exam Name</label><input type="text" id="eN" placeholder="e.g. Biology Paper 1 Mock"></div>
+    <div class="ig" style="margin-bottom:13px">
+      <div class="fg"><label>Subject</label><select id="eS"><option value="bio">Biology</option><option value="chem">Chemistry</option><option value="phys">Physics</option><option value="maths">Maths</option></select></div>
+      <div class="fg"><label>Type</label><select id="eT"><option value="mock">Mock</option><option value="real">Real Exam</option><option value="int">Internal</option></select></div>
+    </div>
+    <div class="fg"><label>Date</label><input type="date" id="eD"></div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('examModal')">Cancel</button>
+      <button class="btn btn-p" onclick="addExam()">Add Exam</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="topicModal">
+  <div class="modal">
+    <div class="modal-title">Add Spec Topic</div>
+    <div class="fg"><label>Subject</label><select id="tS"><option value="bio">Biology</option><option value="chem">Chemistry</option><option value="phys">Physics</option><option value="maths">Maths</option></select></div>
+    <div class="fg"><label>Topic Name</label><input type="text" id="tN" placeholder="e.g. Cell signalling"></div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('topicModal')">Cancel</button>
+      <button class="btn btn-p" onclick="addTopic()">Add Topic</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="paperModal">
+  <div class="modal">
+    <div class="modal-title">Log Past Paper</div>
+    <div class="ig" style="margin-bottom:13px">
+      <div class="fg"><label>Subject</label><select id="ppS"><option value="bio">Biology</option><option value="chem">Chemistry</option><option value="phys">Physics</option><option value="maths">Maths</option></select></div>
+      <div class="fg"><label>Paper</label><input type="text" id="ppP" placeholder="e.g. Paper 1, June 2023"></div>
+    </div>
+    <div class="ig" style="margin-bottom:13px">
+      <div class="fg"><label>Date Done</label><input type="date" id="ppD"></div>
+      <div class="fg"><label>Score (%)</label><input type="number" id="ppSc" min="0" max="100" placeholder="72"></div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="ppN" placeholder="What topics were tricky? What to revisit?"></textarea></div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('paperModal')">Cancel</button>
+      <button class="btn btn-p" onclick="addPaper()">Save Paper</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ SUPABASE ══
+// Add this table to Supabase SQL editor:
+// create table past_papers (id text primary key, subject text, paper text, date text, score numeric, notes text, created_at timestamp default now());
+const SUPA_URL = 'https://mgpqdtzcrclmtxmkqzyw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHFkdHpjcmNsbXR4bWtxenl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjExNDEsImV4cCI6MjA5MTEzNzE0MX0.BeV0gZ7vQXW8G-wY8T9Trkf3LsFixkJO5BWBtRgPloA';
+let sb=null, dbOnline=false;
+function initSupabase(){try{if(!SUPA_URL||SUPA_URL===''){setDBStatus(false,'No URL — local only');return}sb=supabase.createClient(SUPA_URL,SUPA_KEY);setDBStatus(true,'Connected')}catch(e){setDBStatus(false,'Offline — local only')}}
+function setDBStatus(online,label){dbOnline=online;const dot=document.getElementById('dbDot'),lbl=document.getElementById('dbStatus');if(dot)dot.className='db-dot'+(online?'':' offline');if(lbl)lbl.textContent=label}
+
+// ══ CONSTANTS ══
+const SUBJ={bio:{label:'Biology',emoji:'🟢'},chem:{label:'Chemistry',emoji:'🔴'},phys:{label:'Physics',emoji:'🔵'},maths:{label:'Maths',emoji:'🟠'}};
+const QUOTES=[
+  ['"The secret of getting ahead is getting started."','— Mark Twain'],
+  ['"Excellence is not a singular act, but a habit."','— Aristotle'],
+  ['"It always seems impossible until it\'s done."','— Nelson Mandela'],
+  ['"Push yourself, because no one else is going to do it for you."',''],
+  ['"Small daily improvements over time lead to stunning results."',''],
+  ['"The harder you work, the luckier you get."','— Gary Player'],
+  ['"Believe you can and you\'re halfway there."','— Theodore Roosevelt'],
+  ['"Don\'t watch the clock; do what it does. Keep going."','— Sam Levenson'],
+  ['"Success is the sum of small efforts, repeated day in and day out."','— R. Collier'],
+  ['"Discipline is the bridge between goals and accomplishment."','— Jim Rohn'],
+];
+const CL_DEFAULT={
+  bio:['Cell structure & transport','Biological molecules','Enzymes','Cell division (mitosis & meiosis)','Genetic information & variation','Organisms exchange substances','Genetic diversity & adaptation','Energy transfers in ecosystems','Nervous system & hormones','Homeostasis','Populations & ecosystems'],
+  chem:['Atomic structure & electron configuration','Bonding & structure','Periodicity','Redox chemistry','Organic: alkanes, alkenes, haloalkanes','Organic: alcohols, carbonyls, carboxylic acids','Acids, bases & buffers','Electrode potentials & electrochemical cells'],
+  phys:['Motion & forces','Work, energy & power','Materials','Waves & optics','Electricity','Further mechanics','Fields (gravitational, electric, magnetic)','Nuclear & particle physics','Thermodynamics'],
+  maths:['Algebra & functions','Coordinate geometry','Sequences & series','Trigonometry','Exponentials & logarithms','Differentiation','Integration','Vectors','Statistics','Mechanics']
+};
+const MILESTONES=[
+  {id:'first_sess',icon:'🌱',name:'First Step',desc:'Log your first session',check:st=>st.s.length>=1},
+  {id:'streak3',icon:'🔥',name:'3-Day Streak',desc:'3 consecutive days',check:()=>calcStreak()>=3},
+  {id:'streak7',icon:'🔥🔥',name:'Week Warrior',desc:'7-day streak',check:()=>calcStreak()>=7},
+  {id:'sess10',icon:'⭐',name:'10 Sessions',desc:'Log 10 sessions',check:st=>st.s.length>=10},
+  {id:'sess50',icon:'🌟',name:'50 Sessions',desc:'Log 50 sessions',check:st=>st.s.length>=50},
+  {id:'hrs20',icon:'⏰',name:'20 Hours',desc:'20 hours logged',check:st=>st.s.reduce((a,s)=>a+s.dur/60,0)>=20},
+  {id:'hrs50',icon:'📚',name:'50 Hours',desc:'50 hours logged',check:st=>st.s.reduce((a,s)=>a+s.dur/60,0)>=50},
+  {id:'hrs100',icon:'💯',name:'Century',desc:'100 hours logged',check:st=>st.s.reduce((a,s)=>a+s.dur/60,0)>=100},
+  {id:'topics25',icon:'✅',name:'Quarter Done',desc:'25 topics ticked',check:st=>Object.values(st.cl).flat().filter(t=>t.done).length>=25},
+  {id:'paper5',icon:'📄',name:'Paper Trail',desc:'Log 5 past papers',check:st=>st.pp.length>=5},
+];
+
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const p2=n=>String(n).padStart(2,'0');
+const today=()=>new Date().toISOString().slice(0,10);
+function weekStart(d=new Date()){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-day+(day===0?-6:1));return dt.toISOString().slice(0,10)}
+function getWK(ds){return weekStart(new Date(ds+'T12:00:00'))}
+
+// ══ STATE ══
+function makeTopics(arr){return arr.map(t=>({id:uid(),topic:t,done:false,conf:0,note:'',subtopics:[]}))}
+let ST={s:[],t:{bio:8,chem:7,phys:5,maths:4},e:[],cl:null,pp:[]};
+function loadLocal(){
+  ST.s=JSON.parse(localStorage.getItem('rh_s')||'[]');
+  ST.t=JSON.parse(localStorage.getItem('rh_t')||'{"bio":8,"chem":7,"phys":5,"maths":4}');
+  ST.e=JSON.parse(localStorage.getItem('rh_e')||'[]');
+  ST.cl=JSON.parse(localStorage.getItem('rh_cl')||'null');
+  ST.pp=JSON.parse(localStorage.getItem('rh_pp')||'[]');
+  if(!ST.cl)ST.cl={bio:makeTopics(CL_DEFAULT.bio),chem:makeTopics(CL_DEFAULT.chem),phys:makeTopics(CL_DEFAULT.phys),maths:makeTopics(CL_DEFAULT.maths)};
+}
+function saveLocal(){
+  localStorage.setItem('rh_s',JSON.stringify(ST.s));
+  localStorage.setItem('rh_t',JSON.stringify(ST.t));
+  localStorage.setItem('rh_e',JSON.stringify(ST.e));
+  localStorage.setItem('rh_cl',JSON.stringify(ST.cl));
+  localStorage.setItem('rh_pp',JSON.stringify(ST.pp));
+}
+
+// ══ SUPABASE SYNC ══
+async function loadFromSupabase(){
+  if(!sb)return;
+  let anyOk=false;
+
+  // Sessions
+  try{
+    const{data}=await sb.from('sessions').select('*').order('created_at',{ascending:false});
+    if(data?.length){ST.s=data.map(r=>({id:r.id,topic:r.topic||'',subject:r.subject,date:r.date,dur:r.dur,conf:r.conf||0,notes:r.notes||'',goal:r.goal||''}));anyOk=true;}
+  }catch(e){console.warn('sessions load failed',e)}
+
+  // Exams
+  try{
+    const{data}=await sb.from('exams').select('*');
+    if(data?.length){ST.e=data.map(r=>({id:r.id,name:r.name,subject:r.subject,date:r.date,type:r.type,result:r.result}));anyOk=true;}
+  }catch(e){console.warn('exams load failed',e)}
+
+  // Targets
+  try{
+    const{data}=await sb.from('targets').select('*');
+    if(data?.length){data.forEach(r=>{ST.t[r.subject]=r.hrs});anyOk=true;}
+  }catch(e){console.warn('targets load failed',e)}
+
+  // Checklist
+  try{
+    const{data}=await sb.from('checklist').select('*');
+    if(data?.length){
+      const bySub={bio:[],chem:[],phys:[],maths:[]};
+      data.forEach(r=>{
+        if(bySub[r.subject])bySub[r.subject].push({
+          id:r.id,topic:r.topic,done:r.done,conf:r.conf||0,
+          note:r.note||'',subtopics:r.subtopics||[]
+        });
+      });
+      ['bio','chem','phys','maths'].forEach(s=>{if(bySub[s].length)ST.cl[s]=bySub[s]});
+      anyOk=true;
+    }
+  }catch(e){console.warn('checklist load failed',e)}
+
+  // Past papers
+  try{
+    const{data}=await sb.from('past_papers').select('*').order('created_at',{ascending:false});
+    if(data?.length){ST.pp=data.map(r=>({id:r.id,subject:r.subject,paper:r.paper,date:r.date,score:r.score,notes:r.notes||''}));anyOk=true;}
+  }catch(e){console.warn('past_papers load failed',e)}
+
+  if(anyOk){saveLocal();setDBStatus(true,'Connected');}
+  else{setDBStatus(false,'Offline — local only');}
+}
+async function upsertSession(s){if(!sb)return;try{await sb.from('sessions').upsert({id:s.id,topic:s.topic,subject:s.subject,date:s.date,dur:s.dur,conf:s.conf,notes:s.notes,goal:s.goal||''})}catch(e){}}
+async function deleteSession(id){if(!sb)return;try{await sb.from('sessions').delete().eq('id',id)}catch(e){}}
+async function upsertExam(e){if(!sb)return;try{await sb.from('exams').upsert({id:e.id,name:e.name,subject:e.subject,date:e.date,type:e.type,result:e.result})}catch(e){}}
+async function deleteExam(id){if(!sb)return;try{await sb.from('exams').delete().eq('id',id)}catch(e){}}
+async function upsertTopic(s,t){if(!sb)return;try{await sb.from('checklist').upsert({id:t.id,subject:s,topic:t.topic,done:t.done,conf:t.conf,note:t.note,subtopics:t.subtopics||[]})}catch(e){}}
+async function deleteTopic(id){if(!sb)return;try{await sb.from('checklist').delete().eq('id',id)}catch(e){}}
+async function upsertTargets(){if(!sb)return;try{await Promise.all(Object.entries(ST.t).map(([s,h])=>sb.from('targets').upsert({subject:s,hrs:h})))}catch(e){}}
+async function upsertPaper(p){if(!sb)return;try{await sb.from('past_papers').upsert({id:p.id,subject:p.subject,paper:p.paper,date:p.date,score:p.score,notes:p.notes})}catch(e){}}
+async function deletePaperDB(id){if(!sb)return;try{await sb.from('past_papers').delete().eq('id',id)}catch(e){}}
+
+// ══ UTILS ══
+function hrsWk(subj=null){const wk=weekStart();return ST.s.filter(s=>getWK(s.date)===wk&&(!subj||s.subject===subj)).reduce((a,s)=>a+s.dur/60,0)}
+function sessWk(){return ST.s.filter(s=>getWK(s.date)===weekStart())}
+function calcStreak(){
+  const dates=[...new Set(ST.s.map(s=>s.date))].sort();
+  if(!dates.length)return 0;
+  let streak=0,check=today();
+  if(!dates.includes(today())){const yd=new Date(Date.now()-86400000).toISOString().slice(0,10);if(!dates.includes(yd))return 0;check=yd}
+  while(dates.includes(check)){streak++;check=new Date(new Date(check).getTime()-86400000).toISOString().slice(0,10)}
+  return streak;
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)}
+
+// ══ TABS ══
+function switchTab(id){
+  document.querySelectorAll('.tnb').forEach(b=>b.classList.toggle('on',b.dataset.tab===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='tab-'+id));
+  if(id==='dash')renderDash();
+  if(id==='sess')renderHistory();
+  if(id==='check')renderCL();
+  if(id==='exams')renderExams();
+  if(id==='papers')renderPapers();
+  if(id==='stats')renderStats();
+}
+document.querySelectorAll('.tnb').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+// ══ KEYBOARD SHORTCUTS ══
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  if(e.code==='Space'){e.preventDefault();togglePomo();return}
+  if((e.key==='r'||e.key==='R')&&!e.ctrlKey&&!e.metaKey){resetPomo();return}
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveSession();return}
+  if(e.key==='Escape'){document.querySelectorAll('.modal-bg.on').forEach(m=>m.classList.remove('on'));return}
+  if((e.ctrlKey||e.metaKey)){
+    const tabs=['dash','sess','check','exams','papers','stats'];
+    const idx=parseInt(e.key)-1;
+    if(idx>=0&&idx<tabs.length){e.preventDefault();switchTab(tabs[idx])}
+  }
+});
+
+// ══ SPIDER CHART ══
+function buildSpider(containerId,data,size=220){
+  const container=document.getElementById(containerId);if(!container)return;
+  const hasData=data.some(d=>d.value>0);
+  if(!hasData){container.innerHTML=`<div style="text-align:center;padding:28px 0;color:var(--text3)"><div style="font-size:26px;margin-bottom:8px">🕸️</div><div style="font-size:12px">Log sessions with confidence<br>ratings to see your radar</div></div>`;return}
+  const n=data.length,PAD=54,vb=size+PAD*2,cx=vb/2,cy=vb/2,R=size*0.35,labelR=R+40,levels=5,step=(2*Math.PI)/n;
+  const xy=(angle,r)=>[cx+r*Math.sin(angle),cy-r*Math.cos(angle)];
+  let grid='';for(let l=1;l<=levels;l++){const r=(l/levels)*R;grid+=`<polygon points="${data.map((_,i)=>xy(i*step,r).join(',')).join(' ')}" fill="none" stroke="var(--border)" stroke-width="0.8" opacity="${0.3+l*0.08}"/>`}
+  const scl=[1,2,3,4,5].map(l=>{const r=(l/levels)*R;return`<text x="${cx+4}" y="${cy-r+3}" font-size="8" font-family="DM Mono,monospace" fill="var(--text3)" opacity="0.6">${l}</text>`}).join('');
+  const axes=data.map((_,i)=>{const[x,y]=xy(i*step,R);return`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--border2)" stroke-width="1"/>`}).join('');
+  const pts=data.map((d,i)=>xy(i*step,(d.value/d.max)*R).join(',')).join(' ');
+  const lbls=data.map((d,i)=>{const[x,y]=xy(i*step,labelR);const a=x<cx-6?'end':x>cx+6?'start':'middle';return`<text x="${x}" y="${y}" text-anchor="${a}" font-size="12" font-family="DM Sans,sans-serif" fill="var(--${d.color})" font-weight="600">${d.label}</text><text x="${x}" y="${y+14}" text-anchor="${a}" font-size="9" font-family="DM Mono,monospace" fill="var(--text3)">${d.value>0?d.value.toFixed(1):'—'}/5</text>`}).join('');
+  const dots=data.map((d,i)=>{if(!d.value)return'';const[x,y]=xy(i*step,(d.value/d.max)*R);return`<circle cx="${x}" cy="${y}" r="4" fill="var(--${d.color})" stroke="var(--bg)" stroke-width="1.5"/>`}).join('');
+  container.innerHTML=`<svg width="${vb}" height="${vb}" viewBox="0 0 ${vb} ${vb}" style="overflow:visible"><defs><radialGradient id="sf${containerId}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.18"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0.04"/></radialGradient></defs>${grid}${scl}${axes}<polygon points="${pts}" fill="url(#sf${containerId})" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>${dots}${lbls}</svg>`;
+}
+function getSpiderData(){return['bio','chem','phys','maths'].map(s=>{const ss=ST.s.filter(x=>x.subject===s&&x.conf>0);const avg=ss.length?ss.reduce((a,x)=>a+x.conf,0)/ss.length:0;return{label:SUBJ[s].label.slice(0,5),value:avg,max:5,color:s}})}
+
+// ══ SVG CHARTS ══
+function svgBarChart(data,{width=320,height=160,showAxis=true}={}){
+  if(!data.some(d=>d.value>0))return`<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No data yet</div>`;
+  const pad={l:36,r:10,t:20,b:28};const cw=width-pad.l-pad.r,ch=height-pad.t-pad.b;
+  const maxV=Math.max(...data.map(d=>d.value),0.1);
+  const bw=Math.floor(cw/data.length*0.55),gap=Math.floor(cw/data.length);
+  const bars=data.map((d,i)=>{
+    const bh=Math.max((d.value/maxV)*ch,d.value>0?2:0);
+    const x=pad.l+i*gap+(gap-bw)/2,y=pad.t+ch-bh;
+    return`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="var(--${d.color})" rx="4" opacity="0.88"/>
+    <text x="${x+bw/2}" y="${pad.t+ch+16}" text-anchor="middle" font-size="10" fill="var(--text2)" font-family="DM Sans,sans-serif">${d.label}</text>
+    ${d.value>0?`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="9" fill="var(--${d.color})" font-family="DM Mono,monospace">${typeof d.value==='number'&&!Number.isInteger(d.value)?d.value.toFixed(1):d.value}</text>`:''}`;
+  }).join('');
+  const yLines=[0,.25,.5,.75,1].map(p=>{
+    const y=pad.t+ch*(1-p);const v=(maxV*p);
+    return`<text x="${pad.l-4}" y="${y+3}" text-anchor="end" font-size="8" fill="var(--text3)" font-family="DM Mono,monospace">${v>=10?Math.round(v):v.toFixed(1)}</text><line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+  }).join('');
+  return`<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" class="chart-svg">${yLines}${bars}</svg>`;
+}
+
+function svgLineChart(seriesArr,{width=400,height=180}={}){
+  // seriesArr: [{label,color,points:[{x:dateStr,y:num}]}]
+  if(!seriesArr.some(s=>s.points.length>0))return`<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No data yet</div>`;
+  const pad={l:36,r:10,t:16,b:32};const cw=width-pad.l-pad.r,ch=height-pad.t-pad.b;
+  const allY=seriesArr.flatMap(s=>s.points.map(p=>p.y));
+  const maxY=Math.max(...allY,1);
+  const allX=[...new Set(seriesArr.flatMap(s=>s.points.map(p=>p.x)))].sort();
+  if(allX.length<1)return'';
+  const xPos=x=>pad.l+(allX.indexOf(x)/(Math.max(allX.length-1,1)))*cw;
+  const yPos=y=>pad.t+ch-(y/maxY)*ch;
+  const lines=seriesArr.map(s=>{
+    if(s.points.length<1)return'';
+    const pts=s.points.map(p=>`${xPos(p.x)},${yPos(p.y)}`).join(' ');
+    const dots=s.points.map(p=>`<circle cx="${xPos(p.x)}" cy="${yPos(p.y)}" r="3.5" fill="var(--${s.color})" stroke="var(--bg)" stroke-width="1.5"/>`).join('');
+    const areaPath=`M${xPos(s.points[0].x)},${pad.t+ch} `+s.points.map(p=>`L${xPos(p.x)},${yPos(p.y)}`).join(' ')+` L${xPos(s.points[s.points.length-1].x)},${pad.t+ch} Z`;
+    return`<path d="${areaPath}" fill="var(--${s.color})" opacity="0.07"/><polyline points="${pts}" fill="none" stroke="var(--${s.color})" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>${dots}`;
+  }).join('');
+  const xLbls=allX.map((x,i)=>{const px=xPos(x);return`<text x="${px}" y="${pad.t+ch+16}" text-anchor="middle" font-size="9" fill="var(--text3)" font-family="DM Mono,monospace">${x.slice(5)}</text>`}).join('');
+  const yLines=[0,.25,.5,.75,1].map(p=>{const y=pad.t+ch*(1-p);const v=maxY*p;return`<text x="${pad.l-4}" y="${y+3}" text-anchor="end" font-size="8" fill="var(--text3)" font-family="DM Mono,monospace">${Math.round(v)}</text><line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" stroke="var(--border)" stroke-width="0.5" opacity="0.4"/>`}).join('');
+  return`<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" class="chart-svg">${yLines}${lines}${xLbls}</svg>`;
+}
+
+function svgRingChart(pct,color,label,done,total,size=90){
+  const r=32,circ=2*Math.PI*r,dash=(pct/100)*circ;
+  return`<div style="text-align:center">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--s3)" stroke-width="10"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--${color})" stroke-width="10"
+        stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${circ*0.25}" opacity="0.88" stroke-linecap="round"/>
+      <text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-size="13" font-weight="600" fill="var(--${color})" font-family="DM Serif Display,serif">${pct}%</text>
+    </svg>
+    <div style="font-size:11px;font-weight:600;color:var(--${color});margin-top:2px">${SUBJ[color].label}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${done}/${total}</div>
+  </div>`;
+}
+
+// ══ WAKE LOCK + TIMER (tab-sleep proof) ══
+let wakeLock=null;
+async function requestWakeLock(){try{if('wakeLock'in navigator){wakeLock=await navigator.wakeLock.request('screen')}}catch(e){}}
+function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null}}
+
+// Re-acquire wake lock when tab becomes visible again
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&pomo.running){
+    pomo.elapsed=Math.floor((Date.now()-pomo.startTime)/1000);
+    const shouldStop=(pomo.mode!=='free'&&pomo.elapsed>=pomo.total)||(pomo.mode==='free'&&pomo.total>0&&pomo.elapsed>=pomo.total);
+    if(shouldStop){
+      pomo.elapsed=pomo.total;
+      updatePomo();
+      clearInterval(pomo.iv);pomo.running=false;pomo.paused=false;
+      document.getElementById('pomoBtn').textContent='▶ Start';
+      const sb2=document.getElementById('pomoStopBtn');if(sb2)sb2.style.display='none';
+      document.getElementById('pomoBar').classList.remove('on');
+      releaseWakeLock();
+      document.getElementById('logDur').value=Math.round(pomo.total/60);
+      if(pomo.subj)setLS(pomo.subj);
+      const tp=document.getElementById('pomoTopic').value;if(tp)document.getElementById('logTopic').value=tp;
+      toast('⏰ Timer complete! Log your session.');switchTab('sess');playAlarm();
+    }else{
+      requestWakeLock();
+    }
+  }
+});
+
+// ══ POMODORO ══
+const MODES={focus:25*60,short:5*60,free:0};
+const pomo={mode:'focus',subj:null,running:false,paused:false,elapsed:0,total:25*60,iv:null,startTime:0};
+
+function setMode(m){if(pomo.running)return;pomo.mode=m;pomo.elapsed=0;pomo.total=MODES[m]||0;pomo.paused=false;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('on',b.dataset.m===m));const cdw=document.getElementById('customDurWrap');if(cdw)cdw.style.display=m==='free'?'block':'none';updatePomo()}
+function setPS(s){pomo.subj=s;document.querySelectorAll('#pomoSBtns .sbtn').forEach(b=>{b.className='sbtn'+(b.dataset.s===s?' s-'+s:'')});document.getElementById('pomoRing').style.stroke=`var(--${s})`}
+
+function stopPomo(){
+  clearInterval(pomo.iv);pomo.running=false;pomo.paused=false;releaseWakeLock();
+  document.getElementById('pomoBtn').textContent='▶ Start';
+  const sb2=document.getElementById('pomoStopBtn');if(sb2)sb2.style.display='none';
+  document.getElementById('pomoBar').classList.remove('on');
+  if(pomo.elapsed>30){
+    document.getElementById('logDur').value=Math.round(pomo.elapsed/60);
+    if(pomo.subj)setLS(pomo.subj);
+    const tp=document.getElementById('pomoTopic').value;if(tp)document.getElementById('logTopic').value=tp;
+    switchTab('sess');toast('⏹ Session ended — review & save below');
+  }
+  pomo.elapsed=0;updatePomo();
+}
+
+function togglePomo(){
+  const sb2=document.getElementById('pomoStopBtn');
+  if(pomo.running){
+    clearInterval(pomo.iv);pomo.running=false;pomo.paused=true;releaseWakeLock();
+    document.getElementById('pomoBtn').textContent='▶ Resume';
+    document.getElementById('pomoBar').classList.remove('on');
+  }else if(pomo.paused){
+    pomo.running=true;
+    pomo.startTime=Date.now()-pomo.elapsed*1000; // recalculate start offset
+    document.getElementById('pomoBtn').textContent='⏸ Pause';
+    document.getElementById('pomoBar').classList.add('on');
+    requestWakeLock();
+    pomo.iv=setInterval(tick,1000);
+  }else{
+    pomo.running=true;pomo.paused=false;pomo.elapsed=0;
+    pomo.startTime=Date.now();
+    document.getElementById('pomoBtn').textContent='⏸ Pause';
+    document.getElementById('pomoBar').classList.add('on');
+    if(sb2)sb2.style.display='inline-flex';
+    requestWakeLock();
+    pomo.iv=setInterval(tick,1000);
+  }
+}
+
+function tick(){
+  pomo.elapsed=Math.floor((Date.now()-pomo.startTime)/1000);
+  updatePomo();
+  const shouldStop=(pomo.mode!=='free'&&pomo.elapsed>=pomo.total)||(pomo.mode==='free'&&pomo.total>0&&pomo.elapsed>=pomo.total);
+  if(shouldStop){
+    clearInterval(pomo.iv);pomo.running=false;pomo.paused=false;releaseWakeLock();
+    document.getElementById('pomoBtn').textContent='▶ Start';
+    const sb2=document.getElementById('pomoStopBtn');if(sb2)sb2.style.display='none';
+    document.getElementById('pomoBar').classList.remove('on');
+    document.getElementById('logDur').value=Math.round(pomo.total/60);
+    if(pomo.subj)setLS(pomo.subj);
+    const tp=document.getElementById('pomoTopic').value;if(tp)document.getElementById('logTopic').value=tp;
+    toast('⏰ Timer complete! Log your session below.');switchTab('sess');playAlarm();
+  }
+}
+
+function resetPomo(){
+  clearInterval(pomo.iv);pomo.running=false;pomo.paused=false;pomo.elapsed=0;releaseWakeLock();
+  document.getElementById('pomoBtn').textContent='▶ Start';
+  const sb2=document.getElementById('pomoStopBtn');if(sb2)sb2.style.display='none';
+  document.getElementById('pomoBar').classList.remove('on');
+  updatePomo();
+}
+
+function updatePomo(){
+  const circ=527.8;let display,progress;
+  if(pomo.mode==='free'){
+    if(pomo.total>0){
+      // custom countdown
+      const rem=Math.max(pomo.total-pomo.elapsed,0);
+      display=p2(Math.floor(rem/60))+':'+p2(rem%60);
+      progress=1-(pomo.elapsed/pomo.total);
+      if(!document.getElementById('pomoLbl').textContent.includes('EXAM'))
+        document.getElementById('pomoLbl').textContent='CUSTOM';
+    }else{
+      // pure count-up
+      display=p2(Math.floor(pomo.elapsed/60))+':'+p2(pomo.elapsed%60);
+      progress=Math.min(pomo.elapsed/3600,1);
+      document.getElementById('pomoLbl').textContent='FREE';
+    }
+  }else{
+    const rem=Math.max(pomo.total-pomo.elapsed,0);
+    display=p2(Math.floor(rem/60))+':'+p2(rem%60);
+    progress=1-(pomo.elapsed/pomo.total);
+    document.getElementById('pomoLbl').textContent=pomo.mode==='focus'?'FOCUS':'BREAK';
+  }
+  document.getElementById('pomoTime').textContent=display;
+  document.getElementById('pomoBarTime').textContent=display;
+  if(pomo.subj)document.getElementById('pomoBarSubj').textContent='— '+SUBJ[pomo.subj].label;
+  document.getElementById('pomoRing').style.strokeDashoffset=circ*(1-Math.max(0,Math.min(1,progress)));
+  if(!pomo.subj)document.getElementById('pomoRing').style.stroke='var(--accent)';
+  document.title=pomo.running?(pomo.mode==='short'?`☕ ${display} — Revision HQ`:`⏱️ ${display} — Revision HQ`):'Revision HQ';
+}
+
+// ══ SESSION LOGGING ══
+let logSubj=null,logConf=0;
+function setLS(s){logSubj=s;document.querySelectorAll('#logSBtns .sbtn').forEach(b=>{b.className='sbtn'+(b.dataset.s===s?' s-'+s:'')})}
+function setConf(v){logConf=v;document.querySelectorAll('#logStars .star').forEach(s=>s.classList.toggle('on',+s.dataset.v<=v))}
+
+async function saveSession(){
+  const topic=document.getElementById('logTopic').value.trim();
+  const dur=parseInt(document.getElementById('logDur').value);
+  const date=document.getElementById('logDate').value||today();
+  const notes=document.getElementById('logNotes').value.trim();
+  const goal=document.getElementById('logGoal').value.trim();
+  if(!logSubj){toast('⚠️ Select a subject');return}
+  if(!topic){toast('⚠️ Enter a topic');return}
+  if(!dur||dur<1){toast('⚠️ Enter duration');return}
+  const sess={id:uid(),topic,subject:logSubj,date,dur,conf:logConf,notes,goal};
+  ST.s.unshift(sess);saveLocal();await upsertSession(sess);
+  document.getElementById('logTopic').value='';document.getElementById('logDur').value='';
+  document.getElementById('logNotes').value='';document.getElementById('logGoal').value='';
+  document.getElementById('logDate').value=today();
+  logConf=0;document.querySelectorAll('#logStars .star').forEach(s=>s.classList.remove('on'));
+  logSubj=null;document.querySelectorAll('#logSBtns .sbtn').forEach(b=>b.className='sbtn');
+  toast('✓ Session saved!');playChime();launchConfetti();renderHistory();renderDash();
+}
+
+async function delSession(id){ST.s=ST.s.filter(s=>s.id!==id);saveLocal();await deleteSession(id);renderHistory();renderDash();toast('Session deleted')}
+
+function renderHistory(){
+  const filt=document.getElementById('histFilt')?.value||'all';
+  const sess=ST.s.filter(s=>filt==='all'||s.subject===filt);
+  const w=document.getElementById('histWrap');if(!w)return;
+  if(!sess.length){w.innerHTML=`<div class="empty" style="padding:36px"><div class="empty-icon">📝</div><p>No sessions yet.</p></div>`;return}
+  const cl={0:'—',1:'Shaky',2:'Weak',3:'OK',4:'Good',5:'Solid'};
+  const stars=v=>v?'★'.repeat(v):'—';
+  w.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
+    <thead><tr><th>Subject</th><th>Topic</th><th>Goal</th><th>Date</th><th>Dur</th><th>Conf</th><th>Notes</th><th></th></tr></thead>
+    <tbody>${sess.map(s=>{const sj=SUBJ[s.subject];const hrs=(s.dur/60).toFixed(1);
+    return`<tr>
+      <td><span class="pill p-${s.subject}">${sj.emoji} ${sj.label}</span></td>
+      <td style="font-weight:500">${s.topic}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.goal||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${s.date}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${hrs}h</td>
+      <td class="c${s.conf}" style="font-size:12px;font-weight:500">${stars(s.conf)}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.notes}">${s.notes||'—'}</td>
+      <td><button class="btn btn-g btn-icon" onclick="delSession('${s.id}')" title="Delete">✕</button></td>
+    </tr>`;}).join('')}</tbody></table></div>`;
+}
+
+function exportCSV(){
+  const rows=[['Date','Subject','Topic','Goal','Duration(mins)','Duration(hrs)','Confidence','Notes']];
+  ST.s.forEach(s=>rows.push([s.date,SUBJ[s.subject].label,s.topic,s.goal||'',s.dur,(s.dur/60).toFixed(2),s.conf,s.notes||'']));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='revision_hq_sessions.csv';a.click();
+  toast('↓ CSV exported!');
+}
+
+// ══ DASHBOARD ══
+function animateCount(elId,target,suffix='',duration=600){
+  const el=document.getElementById(elId);if(!el)return;
+  el.classList.add('count-anim');const start=performance.now();const num=parseFloat(target);const isFloat=String(target).includes('.');
+  (function step(now){const p=Math.min((now-start)/duration,1);const ease=1-Math.pow(1-p,3);const val=num*ease;el.textContent=isFloat?val.toFixed(1)+suffix:Math.round(val)+suffix;if(p<1)requestAnimationFrame(step)})(performance.now());
+}
+
+function renderDash(){
+  const streak=calcStreak();
+  document.getElementById('streakNum').textContent=streak;
+  const sb2=document.getElementById('streakBadge');if(sb2)sb2.classList.toggle('streak-active',streak>0);
+  document.getElementById('dateLbl').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+
+  const qi=new Date().getDate()%QUOTES.length;
+  const mq=document.getElementById('motivQ'),ma=document.getElementById('motivA');
+  if(mq){mq.style.opacity=0;ma.style.opacity=0;mq.textContent=QUOTES[qi][0];ma.textContent=QUOTES[qi][1];setTimeout(()=>{mq.style.transition='opacity .5s';ma.style.transition='opacity .5s';mq.style.opacity=1;ma.style.opacity=1},80)}
+
+  const wkSess=sessWk(),totalH=wkSess.reduce((a,s)=>a+s.dur/60,0),tgtTotal=Object.values(ST.t).reduce((a,v)=>a+v,0),topicsDone=Object.values(ST.cl).flat().filter(t=>t.done).length;
+  document.getElementById('d-wktgt').textContent=tgtTotal;
+  document.getElementById('wkLabel').textContent='w/c '+weekStart();
+  animateCount('d-wkhrs',totalH,'h');animateCount('d-streak',streak);animateCount('d-sess',wkSess.length);animateCount('d-topics',topicsDone);
+
+  // Weekly review (Fri=5, Sat=6, Sun=0)
+  const dow=new Date().getDay();
+  const rwrap=document.getElementById('weeklyReviewWrap');
+  if(dow>=5||dow===0){
+    const subjs=['bio','chem','phys','maths'];
+    rwrap.innerHTML=`<div class="review-card">
+      <div class="review-title">📋 Weekly Review <span style="font-size:12px;color:var(--text2);font-family:'DM Sans',sans-serif">— w/c ${weekStart()}</span></div>
+      <div class="review-grid">${subjs.map(s=>{
+        const a=hrsWk(s),tgt=ST.t[s],over=a>=tgt;
+        return`<div class="review-item">
+          <div class="review-val" style="color:var(--${s})">${a.toFixed(1)}h</div>
+          <div class="review-lbl">${SUBJ[s].label}</div>
+          <div style="font-size:10px;margin-top:3px;color:${over?'var(--bio)':'var(--chem)'}">${over?'✓ Hit target':`${(tgt-a).toFixed(1)}h short`}</div>
+        </div>`;}).join('')}
+      </div>
+    </div>`;
+  }else{rwrap.innerHTML=''}
+
+  // Weekly bars
+  document.getElementById('wkBars').innerHTML=['bio','chem','phys','maths'].map(s=>{
+    const a=hrsWk(s),tgt=ST.t[s],pct=Math.min((a/tgt)*100,100),over=a>=tgt;
+    return`<div class="pb-block"><div class="pb-meta"><span class="pb-name" style="color:var(--${s})">${SUBJ[s].emoji} ${SUBJ[s].label}</span><span class="pb-nums">${a.toFixed(1)}h / ${tgt}h${over?'<span class="pb-tick"> ✓</span>':''}</span></div><div class="pb-track"><div class="pb-fill ${over?'over':''}" style="width:${pct}%;background:var(--${s})"></div></div></div>`;
+  }).join('');
+
+  // Next exam
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=ST.e.filter(e=>new Date(e.date)>=now).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const de=document.getElementById('dashExam');
+  if(upcoming.length){
+    const e=upcoming[0],days=Math.ceil((new Date(e.date)-now)/86400000),sj=SUBJ[e.subject],hrsLeft=(days*(ST.t[e.subject]/7)).toFixed(0);
+    de.innerHTML=`<div class="exam-hero"><div class="exam-hero-days" style="color:var(--${e.subject})">${days}</div><div class="exam-hero-lbl">Days Remaining</div><div class="exam-hero-name">${e.name}</div><div class="exam-hero-meta">${sj.emoji} ${sj.label} · ${e.date}</div><div class="exam-hero-chip"><span style="font-family:'DM Mono',monospace;color:var(--${e.subject})">${hrsLeft}h</span>&nbsp;at target pace</div></div>`;
+  }else{
+    de.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><p>No upcoming exams.</p><button class="btn btn-p btn-sm" style="margin-top:10px" onclick="switchTab('exams');openModal('examModal')">+ Add Exam</button></div>`;
+  }
+
+  renderHeatmap();buildSpider('spiderWrap',getSpiderData(),210);
+  renderCalendar();
+  renderBadges();renderWeakTopics();
+
+  const rec=ST.s.slice(0,4);const rw=document.getElementById('recentSess');
+  if(!rec.length){rw.innerHTML=`<div class="empty" style="padding:20px"><div class="empty-icon">📝</div><p>No sessions yet.</p></div>`;return}
+  rw.innerHTML=rec.map(s=>{const sj=SUBJ[s.subject];return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:6px"><span class="pill p-${s.subject}">${sj.emoji}</span><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.topic}</div><div style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:1px">${s.date} · ${(s.dur/60).toFixed(1)}h${s.conf?' · '+'★'.repeat(s.conf):''}</div></div></div>`}).join('');
+}
+
+function renderHeatmap(){
+  const cells=[];for(let i=34;i>=0;i--){const d=new Date(Date.now()-i*86400000);const ds=d.toISOString().slice(0,10);const mins=ST.s.filter(s=>s.date===ds).reduce((a,s)=>a+s.dur,0);let lv=0;if(mins>0)lv=1;if(mins>=60)lv=2;if(mins>=120)lv=3;if(mins>=180)lv=4;cells.push({ds,lv})}
+  const weeks=[];for(let i=0;i<5;i++)weeks.push(cells.slice(i*7,(i+1)*7));
+  const dl=['M','T','W','T','F','S','S'];
+  document.getElementById('heatmapWrap').innerHTML=`<div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;gap:4px;padding-left:28px">${dl.map(d=>`<div class="hmap-day">${d}</div>`).join('')}</div><div style="display:flex;gap:3px">${weeks.map(wk=>`<div style="display:flex;flex-direction:column;gap:0"><div style="height:14px"></div><div style="display:flex;flex-direction:column;gap:4px">${wk.map(c=>`<div class="hcell" data-l="${c.lv}" title="${c.ds}"></div>`).join('')}</div></div>`).join('')}</div><div style="display:flex;gap:5px;align-items:center;margin-top:4px"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">LESS</span>${[0,1,2,3,4].map(l=>`<div class="hcell" data-l="${l}" style="width:11px;height:11px"></div>`).join('')}<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">MORE</span></div></div>`;
+}
+
+function renderBadges(){
+  const row=document.getElementById('badgesRow');if(!row)return;
+  row.innerHTML=MILESTONES.map(m=>{const earned=m.check(ST);return`<div class="badge-item ${earned?'earned badge-pop':'locked'}" title="${m.desc}"><div class="badge-icon">${m.icon}</div><div><div class="badge-name">${m.name}</div><div class="badge-desc">${m.desc}</div></div></div>`}).join('');
+}
+
+function renderWeakTopics(){
+  const w=document.getElementById('weakTopics');if(!w)return;
+  const weak=Object.entries(ST.cl).flatMap(([s,topics])=>topics.filter(t=>t.conf>0&&t.conf<=2&&!t.done).map(t=>({...t,subject:s}))).slice(0,6);
+  if(!weak.length){w.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No shaky topics — great work! 💪</div>`;return}
+  const cmap={1:'var(--chem)',2:'var(--maths)'};
+  w.innerHTML=weak.map(t=>`<div class="weak-topic"><div class="weak-conf" style="background:${cmap[t.conf]||'var(--s3)'}1a;color:${cmap[t.conf]}">${t.conf}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.topic}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">${SUBJ[t.subject].emoji} ${SUBJ[t.subject].label}</div></div><button class="btn btn-g btn-xs" onclick="setCLS('${t.subject}');switchTab('check')">Review</button></div>`).join('');
+}
+
+// ══ SPEC CHECKLIST ══
+let clSubj='bio';
+function setCLS(s){clSubj=s;document.querySelectorAll('#checkTabs .stab').forEach(b=>{b.className='stab'+(b.dataset.s===s?' s-'+s:'')});renderCL()}
+function renderCL(){
+  const topics=ST.cl[clSubj],done=topics.filter(t=>t.done).length,pct=topics.length?Math.round(done/topics.length*100):0;
+  document.getElementById('clSummary').innerHTML=`<div><div style="font-family:'DM Serif Display',serif;font-size:40px;line-height:1;color:var(--${clSubj})">${done}/${topics.length}</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.08em;margin-top:4px">TOPICS COVERED</div></div><div style="flex:1"><div class="pb-track" style="height:10px"><div class="pb-fill" style="width:${pct}%;background:var(--${clSubj})"></div></div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);margin-top:5px">${pct}% complete</div></div>`;
+  const cOpts=['—','1 — Shaky','2 — Weak','3 — OK','4 — Good','5 — Solid'].map((o,i)=>`<option value="${i}">${o}</option>`).join('');
+  document.getElementById('clTopics').innerHTML=topics.map(t=>{
+    const subs=t.subtopics||[],subsDone=subs.filter(s=>s.done).length,hasOpen=t._open;
+    const subHTML=hasOpen?`<div class="subtopic-list">${subs.map(s=>`<div class="subtopic-item ${s.done?'done-sub':''}"><div class="stchk ${s.done?'ck':''}" onclick="toggleSub('${clSubj}','${t.id}','${s.id}')"></div><span style="flex:1">${s.text}</span><button class="btn btn-g btn-icon" style="width:22px;height:22px;font-size:10px" onclick="delSub('${clSubj}','${t.id}','${s.id}')">✕</button></div>`).join('')}<div class="add-subtopic"><input type="text" id="si-${t.id}" placeholder="Add subtopic…" onkeydown="if(event.key==='Enter')addSub('${clSubj}','${t.id}')"><button class="btn btn-p btn-xs" onclick="addSub('${clSubj}','${t.id}')">+ Add</button></div></div>`:'';
+    return`<div class="topic-item ${t.done?'done-item':''}" id="ti-${t.id}"><div class="tchk ${t.done?'ck':''}" onclick="toggleT('${clSubj}','${t.id}')"></div><span class="tn">${t.topic}</span><div style="display:flex;align-items:center;gap:6px"><button class="topic-expand" onclick="toggleExpand('${clSubj}','${t.id}')">${hasOpen?'▲':'▼'} ${subs.length?`${subsDone}/${subs.length}`:'sub'}</button></div><div class="tconf"><select onchange="setTC('${clSubj}','${t.id}',this.value)">${cOpts.replace(`value="${t.conf}"`,`value="${t.conf}" selected`)}</select></div><div class="tnote topic-note-cell"><input type="text" placeholder="Note…" value="${t.note||''}" oninput="setTN('${clSubj}','${t.id}',this.value)"></div><button class="btn btn-g btn-icon" onclick="rmTopic('${clSubj}','${t.id}')" title="Remove">✕</button></div>${subHTML}`;
+  }).join('');
+}
+async function toggleT(s,id){const t=ST.cl[s].find(x=>x.id===id);if(!t)return;t.done=!t.done;saveLocal();await upsertTopic(s,t);renderCL();renderDash()}
+function toggleExpand(s,id){const t=ST.cl[s].find(x=>x.id===id);if(!t)return;t._open=!t._open;renderCL()}
+async function addSub(s,id){const t=ST.cl[s].find(x=>x.id===id);if(!t)return;const inp=document.getElementById('si-'+id);if(!inp)return;const text=inp.value.trim();if(!text)return;if(!t.subtopics)t.subtopics=[];t.subtopics.push({id:uid(),text,done:false});saveLocal();await upsertTopic(s,t);renderCL()}
+async function toggleSub(s,tid,sid){const t=ST.cl[s].find(x=>x.id===tid);if(!t)return;const sub=t.subtopics?.find(x=>x.id===sid);if(!sub)return;sub.done=!sub.done;saveLocal();await upsertTopic(s,t);renderCL()}
+async function delSub(s,tid,sid){const t=ST.cl[s].find(x=>x.id===tid);if(!t)return;t.subtopics=t.subtopics.filter(x=>x.id!==sid);saveLocal();await upsertTopic(s,t);renderCL()}
+async function setTC(s,id,v){const t=ST.cl[s].find(x=>x.id===id);if(!t)return;t.conf=parseInt(v);saveLocal();await upsertTopic(s,t)}
+let _tnTimer=null;
+async function setTN(s,id,v){
+  const t=ST.cl[s].find(x=>x.id===id);if(!t)return;
+  t.note=v;saveLocal();
+  clearTimeout(_tnTimer);
+  _tnTimer=setTimeout(()=>upsertTopic(s,t),800);
+}
+async function rmTopic(s,id){await deleteTopic(id);ST.cl[s]=ST.cl[s].filter(x=>x.id!==id);saveLocal();renderCL()}
+function resetSubjectChecklist(){if(!confirm(`Reset all ${SUBJ[clSubj].label} topics?`))return;ST.cl[clSubj]=makeTopics(CL_DEFAULT[clSubj]);saveLocal();renderCL();toast('Checklist reset')}
+async function addTopic(){const s=document.getElementById('tS').value,n=document.getElementById('tN').value.trim();if(!n){toast('⚠️ Enter a topic name');return}const t={id:uid(),topic:n,done:false,conf:0,note:'',subtopics:[]};ST.cl[s].push(t);saveLocal();await upsertTopic(s,t);setCLS(s);closeModal('topicModal');toast('Topic added ✓');document.getElementById('tN').value=''}
+
+// ══ EXAMS ══
+async function addExam(){const n=document.getElementById('eN').value.trim(),s=document.getElementById('eS').value,d=document.getElementById('eD').value,tp=document.getElementById('eT').value;if(!n||!d){toast('⚠️ Fill in all fields');return}const exam={id:uid(),name:n,subject:s,date:d,type:tp,result:null};ST.e.push(exam);saveLocal();await upsertExam(exam);renderExams();renderDash();closeModal('examModal');toast('Exam added ✓');document.getElementById('eN').value='';document.getElementById('eD').value=''}
+async function rmExam(id){await deleteExam(id);ST.e=ST.e.filter(e=>e.id!==id);saveLocal();renderExams();renderDash();toast('Exam removed')}
+async function saveTgts(){['bio','chem','phys','maths'].forEach(s=>{const v=parseInt(document.getElementById('tgt-'+s).value);if(!isNaN(v)&&v>=0)ST.t[s]=v});saveLocal();await upsertTargets();renderDash();toast('Targets updated ✓')}
+function renderExams(){
+  ['bio','chem','phys','maths'].forEach(s=>{const el=document.getElementById('tgt-'+s);if(el)el.value=ST.t[s]});
+  const w=document.getElementById('examList');
+  if(!ST.e.length){w.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><p>No exams added yet.</p></div>`;return}
+  const now=new Date();now.setHours(0,0,0,0);
+  w.innerHTML=[...ST.e].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>{const days=Math.ceil((new Date(e.date)-now)/86400000),past=days<0,sj=SUBJ[e.subject],hrsL=past?null:(days*(ST.t[e.subject]/7)).toFixed(0),ttcls=e.type==='real'?'tt-real':e.type==='int'?'tt-int':'tt-mock';return`<div class="exam-card" style="${past?'opacity:.4':''}"><div><div class="ex-days-n" style="color:var(--${e.subject})">${past?'Past':days}</div><div class="ex-days-l">days</div></div><div><div class="ex-name">${e.name}</div><div class="ex-meta">${sj.emoji} ${sj.label} · ${e.date}</div>${!past?`<div class="ex-hrs">≈ ${hrsL}h at target pace</div>`:''}</div><span class="type-tag ${ttcls}">${e.type}</span><button class="btn btn-g btn-icon" onclick="rmExam('${e.id}')">✕</button></div>`}).join('');
+}
+
+// ══ PAST PAPERS ══
+async function addPaper(){
+  const s=document.getElementById('ppS').value,p=document.getElementById('ppP').value.trim(),d=document.getElementById('ppD').value,sc=parseFloat(document.getElementById('ppSc').value),n=document.getElementById('ppN').value.trim();
+  if(!p||!d||isNaN(sc)){toast('⚠️ Fill in all fields');return}
+  const paper={id:uid(),subject:s,paper:p,date:d,score:sc,notes:n};
+  ST.pp.push(paper);saveLocal();await upsertPaper(paper);
+  renderPapers();closeModal('paperModal');toast('Paper logged ✓');playChime();launchConfetti();
+  document.getElementById('ppP').value='';document.getElementById('ppSc').value='';document.getElementById('ppN').value='';document.getElementById('ppD').value=today();
+}
+async function delPaper(id){await deletePaperDB(id);ST.pp=ST.pp.filter(p=>p.id!==id);saveLocal();renderPapers();toast('Paper removed')}
+
+function scoreClass(s){if(s>=80)return'sc-a';if(s>=65)return'sc-b';if(s>=50)return'sc-c';return'sc-d'}
+
+function renderPapers(){
+  // Line chart per subject
+  const subjs=['bio','chem','phys','maths'];
+  const series=subjs.map(s=>({label:SUBJ[s].label,color:s,points:ST.pp.filter(p=>p.subject===s).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>({x:p.date,y:p.score}))}));
+  document.getElementById('paperChart').innerHTML=svgLineChart(series,{width:360,height:180});
+
+  // Avg per subject
+  const avg=subjs.map(s=>{const pp=ST.pp.filter(p=>p.subject===s);const a=pp.length?pp.reduce((x,p)=>x+p.score,0)/pp.length:0;return{label:SUBJ[s].label.slice(0,5),value:Math.round(a),color:s}});
+  document.getElementById('paperAvg').innerHTML=svgBarChart(avg,{width:320,height:160});
+
+  // Table
+  const pl=document.getElementById('paperList');
+  if(!ST.pp.length){pl.innerHTML=`<div class="empty" style="padding:36px"><div class="empty-icon">📄</div><p>No papers logged yet.<br>Add one above.</p></div>`;return}
+  const sorted=[...ST.pp].sort((a,b)=>b.date.localeCompare(a.date));
+  pl.innerHTML=`<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Subject</th><th>Paper</th><th>Date</th><th>Score</th><th>Notes</th><th></th></tr></thead><tbody>${sorted.map(p=>`<tr><td><span class="pill p-${p.subject}">${SUBJ[p.subject].emoji} ${SUBJ[p.subject].label}</span></td><td style="font-weight:500">${p.paper}</td><td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${p.date}</td><td><span class="score-chip ${scoreClass(p.score)}">${p.score}%</span></td><td style="font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.notes||'—'}</td><td><button class="btn btn-g btn-icon" onclick="delPaper('${p.id}')">✕</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+// ══ ANALYTICS ══
+function renderStats(){
+  const subjs=['bio','chem','phys','maths'];
+  const hrs={};subjs.forEach(s=>hrs[s]=ST.s.filter(x=>x.subject===s).reduce((a,x)=>a+x.dur/60,0));
+  document.getElementById('aHours').innerHTML=svgBarChart(subjs.map(s=>({label:SUBJ[s].label.slice(0,5),value:parseFloat(hrs[s].toFixed(1)),color:s})),{width:340,height:160});
+
+  const conf={};subjs.forEach(s=>{const ss=ST.s.filter(x=>x.subject===s&&x.conf>0);conf[s]=ss.length?parseFloat((ss.reduce((a,x)=>a+x.conf,0)/ss.length).toFixed(2)):0});
+  document.getElementById('aConf').innerHTML=svgBarChart(subjs.map(s=>({label:SUBJ[s].label.slice(0,5),value:conf[s],color:s})),{width:340,height:160});
+
+  const sessCount={};subjs.forEach(s=>sessCount[s]=ST.s.filter(x=>x.subject===s).length);
+  document.getElementById('aSessCount').innerHTML=svgBarChart(subjs.map(s=>({label:SUBJ[s].label.slice(0,5),value:sessCount[s],color:s})),{width:340,height:160});
+
+  // Coverage rings
+  const covHTML=subjs.map(s=>{const tp=ST.cl[s],done=tp.filter(t=>t.done).length,pct=tp.length?Math.round(done/tp.length*100):0;return svgRingChart(pct,s,SUBJ[s].label,done,tp.length,100)}).join('');
+  document.getElementById('aCoverage').innerHTML=covHTML;
+
+  // Donut
+  const total=Object.values(hrs).reduce((a,v)=>a+v,0)||1;
+  const circ=2*Math.PI*50;let ofs=circ*0.25;
+  const slices=subjs.map(s=>{const frac=hrs[s]/total,dash=frac*circ,sl=`<circle cx="68" cy="68" r="50" fill="none" stroke="var(--${s})" stroke-width="17" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${-(ofs-circ*0.25)}" opacity=".88"/>`;ofs+=dash;return sl});
+  document.getElementById('aDonut').innerHTML=`<svg width="136" height="136" viewBox="0 0 136 136" style="flex-shrink:0;transform:rotate(-90deg)"><circle cx="68" cy="68" r="50" fill="none" stroke="var(--s3)" stroke-width="17"/>${slices.join('')}</svg><div>${subjs.map(s=>`<div class="legend-row"><div class="lswatch" style="background:var(--${s})"></div><span class="ltext">${SUBJ[s].label}</span><span class="lpct">${hrs[s].toFixed(1)}h · ${Math.round(hrs[s]/total*100)}%</span></div>`).join('')}</div>`;
+
+  buildSpider('statsSpider',getSpiderData(),210);
+
+  // Weekly trend SVG
+  const weeks=[];for(let i=7;i>=0;i--){const d=new Date(Date.now()-i*7*86400000),wk=weekStart(d);const wHrs={};subjs.forEach(s=>{wHrs[s]=ST.s.filter(x=>getWK(x.date)===wk&&x.subject===s).reduce((a,x)=>a+x.dur/60,0)});weeks.push({wk,wHrs})}
+  const maxWk=Math.max(...weeks.map(w=>Object.values(w.wHrs).reduce((a,v)=>a+v,0)),1);
+  const HEIGHT=120,W=480,pad={l:32,r:8,t:16,b:28};const cw=W-pad.l-pad.r,ch=HEIGHT;
+  const bw=Math.floor(cw/weeks.length*0.55),gap=cw/weeks.length;
+  let trendSVG=`<svg width="${W}" height="${HEIGHT+pad.t+pad.b}" viewBox="0 0 ${W} ${HEIGHT+pad.t+pad.b}" class="chart-svg">`;
+  // Grid lines
+  [0,.25,.5,.75,1].forEach(p=>{const y=pad.t+ch*(1-p);const v=maxWk*p;trendSVG+=`<text x="${pad.l-4}" y="${y+3}" text-anchor="end" font-size="8" fill="var(--text3)" font-family="DM Mono,monospace">${v>=10?Math.round(v):v.toFixed(1)}</text><line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" stroke="var(--border)" stroke-width="0.5" opacity="0.4"/>`;});
+  weeks.forEach((w,wi)=>{
+    const tot=Object.values(w.wHrs).reduce((a,v)=>a+v,0);const barH=Math.max((tot/maxWk)*ch,tot>0?2:0);const x=pad.l+wi*gap+(gap-bw)/2,y=pad.t+ch-barH;
+    let yOff=pad.t+ch;['maths','phys','chem','bio'].forEach(s=>{const h=w.wHrs[s];if(!h)return;const sh=Math.max((h/maxWk)*ch*(tot>0?(h/tot):0)*maxWk/tot,1);const segH=(h/tot)*barH;yOff-=segH;trendSVG+=`<rect x="${x}" y="${yOff}" width="${bw}" height="${segH}" fill="var(--${s})" rx="1" opacity="0.88"/>`;});
+    trendSVG+=`<text x="${x+bw/2}" y="${pad.t+ch+16}" text-anchor="middle" font-size="9" fill="var(--text3)" font-family="DM Mono,monospace">${w.wk.slice(5)}</text>`;
+    if(tot>0)trendSVG+=`<text x="${x+bw/2}" y="${pad.t+ch-barH-4}" text-anchor="middle" font-size="8" fill="var(--text2)" font-family="DM Mono,monospace">${tot.toFixed(1)}</text>`;
+  });
+  trendSVG+=`</svg><div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">${subjs.map(s=>`<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)"><span style="width:8px;height:8px;border-radius:1px;background:var(--${s});display:inline-block"></span>${SUBJ[s].label}</span>`).join('')}</div>`;
+  document.getElementById('aTrend').innerHTML=trendSVG;
+}
+
+// ══ MODALS ══
+function openModal(id){document.getElementById(id).classList.add('on')}
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on')}));
+
+// ══ LOCK ══
+const PASS='medic25';
+function checkPass(){const val=document.getElementById('lockInput').value;if(val===PASS){sessionStorage.setItem('rh_unlocked','1');document.getElementById('lockScreen').style.display='none'}else{const inp=document.getElementById('lockInput');inp.classList.add('err');document.getElementById('lockErr').textContent='Incorrect passphrase';setTimeout(()=>{inp.classList.remove('err');document.getElementById('lockErr').textContent=''},1200);inp.value=''}}
+if(sessionStorage.getItem('rh_unlocked')==='1')document.getElementById('lockScreen').style.display='none';
+
+// ══ DOTS ══
+function spawnDots(){
+  const container=document.getElementById('dotsBg');if(!container)return;
+  const colours=['rgba(79,142,247,VAL)','rgba(45,224,138,VAL)','rgba(255,95,109,VAL)','rgba(90,171,255,VAL)','rgba(255,176,32,VAL)'];
+  for(let i=0;i<34;i++){const d=document.createElement('div');d.className='dot-p';const size=Math.random()*4+1.5;const col=colours[Math.floor(Math.random()*colours.length)].replace('VAL',(Math.random()*0.25+0.08).toFixed(2));d.style.cssText=`width:${size}px;height:${size}px;background:${col};box-shadow:0 0 ${size*2}px ${col};left:${Math.random()*100}%;bottom:-10px;animation-duration:${Math.random()*18+14}s;animation-delay:${Math.random()*20}s`;container.appendChild(d)}
+}
+
+// ══ SOUND ENGINE (Web Audio API) ══
+function playChime(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=[523,659,784,1047];
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=freq;
+      const t=ctx.currentTime+i*0.13;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.15,t+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+      osc.start(t);osc.stop(t+0.5);
+    });
+  }catch(e){}
+}
+
+function playAlarm(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,0.3,0.6].forEach(delay=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='square';osc.frequency.value=880;
+      gain.gain.setValueAtTime(0,ctx.currentTime+delay);
+      gain.gain.linearRampToValueAtTime(0.08,ctx.currentTime+delay+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+0.25);
+      osc.start(ctx.currentTime+delay);osc.stop(ctx.currentTime+delay+0.3);
+    });
+  }catch(e){}
+}
+
+// ══ CONFETTI ══
+function launchConfetti(){
+  const container=document.getElementById('confettiContainer');if(!container)return;
+  const colours=['#2de08a','#ff5f6d','#5aabff','#ffb020','#4f8ef7','#fff'];
+  for(let i=0;i<80;i++){
+    const piece=document.createElement('div');
+    piece.className='confetti-piece';
+    const size=Math.random()*8+4;
+    piece.style.cssText=`
+      width:${size}px;height:${size}px;
+      background:${colours[Math.floor(Math.random()*colours.length)]};
+      left:${Math.random()*100}%;
+      top:-10px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation:confettiFall ${Math.random()*2+1.5}s linear ${Math.random()*0.5}s forwards;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    container.appendChild(piece);
+  }
+  setTimeout(()=>container.innerHTML='',3500);
+}
+
+// ══ CUSTOM DURATION (Free mode) ══
+function applyCustomDur(){
+  const val=parseInt(document.getElementById('customDurInput').value);
+  if(!isNaN(val)&&val>0){
+    pomo.total=val*60;
+    document.getElementById('pomoLbl').textContent='CUSTOM';
+    toast(`Custom timer set: ${val}m`);
+  }else{
+    pomo.total=0; // pure count-up
+  }
+  pomo.elapsed=0;updatePomo();
+}
+
+// ══ PP TIMER (sets custom dur then opens sessions tab) ══
+function startPPTimer(){
+  const val=parseInt(document.getElementById('ppTimerDur').value);
+  if(!isNaN(val)&&val>0){
+    // switch to free/custom mode
+    setMode('free');
+    pomo.total=val*60;
+    document.getElementById('pomoLbl').textContent='EXAM';
+    // set the input for display
+    document.getElementById('customDurInput').value=val;
+    switchTab('sess');
+    // auto-start
+    setTimeout(()=>{
+      if(!pomo.running&&!pomo.paused)togglePomo();
+    },200);
+    toast(`Exam timer: ${val}m — good luck! 🎯`);
+  }else{
+    toast('⚠️ Enter a duration in minutes');
+  }
+}
+
+// ══ STREAK CALENDAR ══
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+
+function renderCalendar(){
+  const wrap=document.getElementById('calWrap');if(!wrap)return;
+  const now=new Date(), todayStr=today();
+  const firstDay=new Date(calYear,calMonth,1);
+  const lastDay=new Date(calYear,calMonth+1,0);
+  const startDow=firstDay.getDay()===0?6:firstDay.getDay()-1; // Mon=0
+  const totalCells=Math.ceil((startDow+lastDay.getDate())/7)*7;
+
+  // Build session lookup: date -> [subjects]
+  const sessMap={};
+  ST.s.forEach(s=>{
+    if(!sessMap[s.date])sessMap[s.date]=new Set();
+    sessMap[s.date].add(s.subject);
+  });
+
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dayLabels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const subjCols={bio:'var(--bio)',chem:'var(--chem)',phys:'var(--phys)',maths:'var(--maths)'};
+  const subjOrder=['bio','chem','phys','maths'];
+
+  let cells='';
+  for(let i=0;i<totalCells;i++){
+    const dayOffset=i-startDow+1;
+    const cellDate=new Date(calYear,calMonth,dayOffset);
+    const cellStr=cellDate.toISOString().slice(0,10);
+    const isThisMonth=cellDate.getMonth()===calMonth;
+    const isToday=cellStr===todayStr;
+    const isFuture=cellDate>now;
+    const subjects=sessMap[cellStr];
+    const hasSess=subjects&&subjects.size>0;
+    const dots=hasSess&&!isFuture?subjOrder.filter(s=>subjects.has(s)).map(s=>`<div class="cal-dot" style="background:${subjCols[s]}"></div>`).join(''):'';
+
+    cells+=`<div class="cal-cell ${isToday?'today':''} ${!isThisMonth?'other-month':''} ${hasSess&&isThisMonth?'has-session':''}" title="${cellStr}">
+      <span>${cellDate.getDate()}</span>
+      ${dots?`<div class="cal-dot-row">${dots}</div>`:''}
+    </div>`;
+  }
+
+  wrap.innerHTML=`
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calNav(-1)">‹</button>
+      <div class="cal-title">${monthNames[calMonth]} ${calYear}</div>
+      <button class="cal-nav" onclick="calNav(1)">›</button>
+    </div>
+    <div class="cal-grid">
+      ${dayLabels.map(d=>`<div class="cal-day-lbl">${d}</div>`).join('')}
+      ${cells}
+    </div>
+    <div class="cal-legend">
+      ${subjOrder.map(s=>`<div class="cal-legend-item"><div class="cal-dot" style="background:${subjCols[s]};width:8px;height:8px"></div>${SUBJ[s].label}</div>`).join('')}
+    </div>`;
+}
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++}
+  if(calMonth<0){calMonth=11;calYear--}
+  renderCalendar();
+}
+
+// ══ SERVICE WORKER REGISTRATION ══
+if('serviceWorker'in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
+// ══ INIT ══
+async function init(){
+  loadLocal();initSupabase();spawnDots();
+  document.getElementById('logDate').value=today();
+  document.getElementById('ppD').value=today();
+  document.getElementById('tN').addEventListener('keydown',e=>{if(e.key==='Enter')addTopic()});
+  document.getElementById('eN').addEventListener('keydown',e=>{if(e.key==='Enter')addExam()});
+  updatePomo();
+  if(sb)await loadFromSupabase();
+  renderDash();
+  document.getElementById('loader').classList.add('gone');
+}
+init();
+</script>
+</body>
+</html>
