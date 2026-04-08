@@ -666,7 +666,7 @@ select option{background:var(--s2)}
 const SUPA_URL = 'https://mgpqdtzcrclmtxmkqzyw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHFkdHpjcmNsbXR4bWtxenl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjExNDEsImV4cCI6MjA5MTEzNzE0MX0.BeV0gZ7vQXW8G-wY8T9Trkf3LsFixkJO5BWBtRgPloA';
 let sb=null, dbOnline=false;
-function initSupabase(){try{if(SUPA_URL==='PASTE_YOUR_PROJECT_URL_HERE'){setDBStatus(false,'No URL — local only');return}sb=supabase.createClient(SUPA_URL,SUPA_KEY);setDBStatus(true,'Connected')}catch(e){setDBStatus(false,'Offline — local only')}}
+function initSupabase(){try{if(SUPA_URL==='https://mgpqdtzcrclmtxmkqzyw.supabase.co'){setDBStatus(false,'No URL — local only');return}sb=supabase.createClient(SUPA_URL,SUPA_KEY);setDBStatus(true,'Connected')}catch(e){setDBStatus(false,'Offline — local only')}}
 function setDBStatus(online,label){dbOnline=online;const dot=document.getElementById('dbDot'),lbl=document.getElementById('dbStatus');if(dot)dot.className='db-dot'+(online?'':' offline');if(lbl)lbl.textContent=label}
 
 // ══ CONSTANTS ══
