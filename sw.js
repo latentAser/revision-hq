@@ -1,7 +1,7 @@
-const CACHE = 'revision-hq-v1.6';
+const CACHE = 'revision-hq-v1.7';
 const ASSETS = [
   '/',
-  '/revision_hq_v1.6.html',
+  '/revision_hq_v1.7.html',
   'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
