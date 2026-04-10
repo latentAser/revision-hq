@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/revision_hq_v1.6.html" }
+    { "source": "/", "destination": "/revision_hq_v1.7.html" }
   ]
 }
